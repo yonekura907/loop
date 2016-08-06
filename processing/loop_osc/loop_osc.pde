@@ -20,7 +20,7 @@ NetAddress myRemoteLocation;
 
 final String serialPortName = "/dev/cu.usbmodem1421";
 
-//final String toMaxIPAddr = "172.17.11.84";
+//final String toMaxIPAddr = "192.168.43.19";
 final String toMaxIPAddr = "127.0.0.1";
 
 int gDataCnt = 0;
@@ -34,8 +34,8 @@ void setup(){
   //size(640,480);
   
   //Serial Port Open
-  myPort = new Serial(this, serialPortName, 9600);
-  //myPort = new Serial(this, serialPortName, 115200);
+  //myPort = new Serial(this, serialPortName, 9600);
+  myPort = new Serial(this, serialPortName, 115200);
   
   /* 受信用の変数。右の数字はポート番号。送信側のポート番号とあわせる。 */
   //oscP5 = new OscP5(this,7401);
@@ -93,35 +93,35 @@ void serialEvent(Serial myPort){
   try {
     //Send Steps
     if (gDataCnt == 0) {
-      println("count: " + gStepCnt);
+      //println("count: " + gStepCnt);
       OscMessage countMsg = new OscMessage("/counter");
       countMsg.add(gStepCnt);
       oscP5.send(countMsg, myRemoteLocation); //送信 
     }
     //Send Steps
     else if (gDataCnt == 8) {
-      println(gSteps);
+      //println(gSteps);
       OscMessage stepMsg = new OscMessage("/steps");
       stepMsg.add(gSteps);
       oscP5.send(stepMsg, myRemoteLocation); //送信
     }
     //Send BPM
     else if (gDataCnt == 9) {
-      println("bpm: " + gBpm);
+      //println("bpm: " + gBpm);
       OscMessage bpmMsg = new OscMessage("/bpm");
       bpmMsg.add(gBpm);
       oscP5.send(bpmMsg, myRemoteLocation); //送信
     }
     //Send Volume
     else if (gDataCnt == 10) {
-      println("volume: " + gVolume);
+      //println("volume: " + gVolume);
       OscMessage volumeMsg = new OscMessage("/volume");
       volumeMsg.add(gVolume);
       oscP5.send(volumeMsg, myRemoteLocation); //送信
     }
     //Send Wave
     else if (gDataCnt == 11) {
-      println("wave" + gWaveKind);
+      //println("wave" + gWaveKind);
       OscMessage waveMsg = new OscMessage("/osculator");
       waveMsg.add(gWaveKind);
       //waveMsg.add(1);

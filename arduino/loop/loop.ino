@@ -3,7 +3,7 @@
 
 /* BPM計算の基準音符 */
 /* 1:全音符, 2:二分音符, 4:四分音符, 8:八分音符, 16:十六分音符 */
-#define BASESIGN (4)
+#define BASESIGN (8)
 
 /*
  * アナログ入力PIN定義
@@ -60,8 +60,8 @@ void setup( ){
   gLoopCnt = 0;
   
   /* シリアルポートオープン */
-  Serial.begin(9600);
-//  Serial.begin(115200);
+//  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 /*
@@ -261,9 +261,9 @@ int getBPM() {
   int value = 0;
   int bpm = 0;
   
-  /* センサー値取得を取得して40~200に変換 */
+  /* センサー値取得を取得して40~180に変換 */
   value = analogRead(BPMPIN);
-  bpm = int(float(value) * (200 - 40) / 1023 + 40);
+  bpm = int(float(value) * (180 - 40) / 1023 + 40);
 
   return bpm;
 }
@@ -282,7 +282,7 @@ int bpmToMSec(int bpm) {
   float msec = 0;
 
   /* BPM -> msec変換 */
-  msec = 1000 * (60 / float(bpm)) * (4 / BASESIGN);
+  msec = 1000 * (60 / float(bpm)) * (4.0 / BASESIGN);
 
   return int(msec);
 }

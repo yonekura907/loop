@@ -34,8 +34,8 @@ void setup(){
   //size(640,480);
   
   //Serial Port Open
-  //myPort = new Serial(this, serialPortName, 9600);
-  myPort = new Serial(this, serialPortName, 115200);
+  myPort = new Serial(this, serialPortName, 9600);
+  //myPort = new Serial(this, serialPortName, 115200);
   
   /* 受信用の変数。右の数字はポート番号。送信側のポート番号とあわせる。 */
   //oscP5 = new OscP5(this,7401);

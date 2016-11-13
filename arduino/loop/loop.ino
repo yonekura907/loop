@@ -18,12 +18,16 @@
  */
 /* タイミングInput用PIN */
 const int STEPPIN[] = {0, 1, 2, 3, 4, 5, 6, 7};
-/* 波形Input用PIN */
-const int WAVEPIN = 8;
-/* ボリュームInput用PIN */
-const int VOLUMEPIN = 9;
+
+/* オクターブInput用PIN */
+const int OCTAVEPIN = 8;
+
+/* ヴィブラートInput用PIN */
+const int VIBRATOPIN = 9;
+
 /* BPMInput用PIN */
 const int BPMPIN = 10;
+
 
 /*
  * デジタル入出力PIN定義
@@ -50,7 +54,8 @@ int gWaitValue = 1000;
  */
 void setup( ){
   int sensorCnt = 0;
-  
+  int input = 0;
+
   /* LED表示用PINの設定 */
   for (sensorCnt = 0; sensorCnt < STEPNUM; sensorCnt++) {
     pinMode(LEDPIN[sensorCnt], OUTPUT);
@@ -62,7 +67,15 @@ void setup( ){
   /* シリアルポートオープン */
 //  Serial.begin(9600);
   Serial.begin(115200);
+
+  while(true) {
+    input = Serial.read();
+    if (1 == input) {
+      break;
+    }
+  }
 }
+
 
 /*
  * loop
@@ -74,11 +87,21 @@ void loop(){
   int volume = 0;
   int waitTime = 0;
   int waveKind = 0;
+  int input = 0;
 
   int cnt;
 
   /* 初期化 */
   memset(steps, 0, STEPNUM * sizeof(byte));
+
+  /* 同期のメッセージを受けたら強制的にcount0からスタート */
+  if (Serial.available() > 0) {
+    input = Serial.read();
+    if (2 == input) {
+      gLoopCnt = 0;
+      return;
+    }
+  }
 
   /* LED消灯 */
   /* LEDを点灯させた状態だと可変抵抗の値がうまく取得できなかったので、
@@ -91,23 +114,22 @@ void loop(){
 
   /* BPM取得 */
   bpm = getBPM();
-  
-  /* 音量の取得 */
-  volume = getVolume();
 
-  /* 波形種類取得 */
-  waveKind = getWaveKind();
+  /* オクターブ取得 */
+  octave = getOctave();
+
+  /* ヴィブラート取得 */
+  vibrato = getVibrato();
 
   /* データをProcessingに送信 */
-  sendData(steps, STEPNUM, bpm, volume, waveKind);
-  
-  /* LED表示 */
-  showLED(gLoopCnt);
+  sendData(steps, STEPNUM, octave, vibrato);
+//  sendData(steps, STEPNUM, bpm, volume, waveKind);
   
   /* LED表示 */
   showLED(gLoopCnt);
   /* BPM -> msec変換 */
   waitTime = bpmToMSec(bpm);
+  
   /* BPM最速の時の待機時間より早い場合は補正する */
   if (75 > waitTime) {
     waitTime = 75;
@@ -188,14 +210,101 @@ void getStepNum(int* pStepBuff, int buffSize) {
   for (sensorCnt = 0; sensorCnt < buffSize; sensorCnt++) {
     sensorValue = analogRead(STEPPIN[sensorCnt]);
     /* センサー値を0~8の値に丸めて保存 */
-    *(pStepBuff + sensorCnt) = roundStepValue(sensorValue);
+    *(pStepBuff + sensorCnt) = roundAnalogToDigital(sensorValue);
   }
 
   return;
 }
 
 /*
- * Name : roundStepValue
+ * Name : getBPM
+ * description: センサー値からBPMを取得 
+ * --------------------------------------------
+ * argument
+ *  none
+ * retturn
+ *  bpm         BPM値
+ * --------------------------------------------
+ */
+int getBPM() {
+  int value = 0;
+  int bpm = 0;
+  
+  /* センサー値取得を取得して60、120、240に変換 */
+  value = analogRead(BPMPIN);
+  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
+//  bpm = int(float(value) * (180 - 40) / 1023 + 40);
+
+  return bpm;
+}
+
+
+/*
+ * Name : getWaitTimeByBPM
+ * description: BPMからmsecに変換
+ * --------------------------------------------
+ * argument
+ *  [in]  int   bpm
+ * retturn
+ *  msec        待機時間(msec)
+ * --------------------------------------------
+ */
+int bpmToMSec(int bpm) {
+  float msec = 0;
+
+  /* BPM -> msec変換 */
+  msec = 1000 * (60 / float(bpm)) * (4.0 / BASESIGN);
+
+  return int(msec);
+}
+
+
+/*
+ * Name : getOctave
+ * description: センサー値から音の高さを取得 
+ * --------------------------------------------
+ * argument
+ *  none
+ * retturn
+ *  volume         音量
+ * --------------------------------------------
+ */
+int getOctave() {
+  int octave = 0;
+  int value = 0;
+
+  /* センサー値取得 */
+  value = analogRead(OCTAVEPIN);
+  octave = roundAnalogToDigital(value);
+
+  return octave;
+}
+
+
+/*
+ * Name : getVibrato
+ * description: センサー値からdelayを取得 
+ * --------------------------------------------
+ * argument
+ *  none
+ * retturn
+ *  volume         音量
+ * --------------------------------------------
+ */
+int getVibrato() {
+  int vibrato = 0;
+  int value = 0;
+
+  /* センサー値取得 */
+  value = analogRead(VIBRATOPIN);
+  vibrato = roundAnalogToDigital(value);
+
+  return vibrato;
+}
+
+
+/*
+ * Name : roundAnalogToDigital
  * description: センサー値丸め  
  * --------------------------------------------
  * argument
@@ -204,7 +313,7 @@ void getStepNum(int* pStepBuff, int buffSize) {
  *  none
  * --------------------------------------------
  */
-int roundStepValue(int value) {
+int roundAnalogToDigital(int value) {
   int roundValue = 0;
   
   /* 7.5KΩ */
@@ -248,153 +357,19 @@ int roundStepValue(int value) {
 
 
 /*
- * Name : getBPM
- * description: センサー値からBPMを取得 
- * --------------------------------------------
- * argument
- *  none
- * retturn
- *  bpm         BPM値
- * --------------------------------------------
- */
-int getBPM() {
-  int value = 0;
-  int bpm = 0;
-  
-  /* センサー値取得を取得して40~180に変換 */
-  value = analogRead(BPMPIN);
-  bpm = int(float(value) * (180 - 40) / 1023 + 40);
-
-  return bpm;
-}
-
-/*
- * Name : getWaitTimeByBPM
- * description: BPMからmsecに変換
- * --------------------------------------------
- * argument
- *  [in]  int   bpm
- * retturn
- *  msec        待機時間(msec)
- * --------------------------------------------
- */
-int bpmToMSec(int bpm) {
-  float msec = 0;
-
-  /* BPM -> msec変換 */
-  msec = 1000 * (60 / float(bpm)) * (4.0 / BASESIGN);
-
-  return int(msec);
-}
-
-/*
- * Name : getVolume
- * description: センサー値から音量を取得 
- * --------------------------------------------
- * argument
- *  none
- * retturn
- *  volume         音量
- * --------------------------------------------
- */
-int getVolume() {
-  int volume = 0;
-  int value = 0;
-
-  /* センサー値取得 */
-  value = analogRead(VOLUMEPIN);
-  volume = int(float(value) * (100 - 0) / 1023 + 0);
-
-  return volume;
-}
-
-/*
- * Name : getWaveKind
- * description: センサー値から波形の種類を取得
- * --------------------------------------------
- * argument
- *  none
- * retturn
- *  waveKind    波形種類
- * --------------------------------------------
- */
-int getWaveKind() {
-  int waveKind = 0;
-  int sensorValue = 0;
-  int roundValue = 0;
-
-  sensorValue = analogRead(WAVEPIN);
-  waveKind = roundWaveKindValue(sensorValue);
-  
-  return waveKind;
-}
-
-/*
- * Name : roundStepValue
- * description: センサー値丸め  
- * --------------------------------------------
- * argument
- *  none
- * retturn
- *  none
- * --------------------------------------------
- */
-int roundWaveKindValue(int value) {
-  int roundValue = 0;
-  
-  /* 7.5KΩ */
-  if ((579 < value) && (value <= 599)) {
-   roundValue = 1; 
-  }
-  /* 5.1KΩ */
-  else if ((672 < value) && (value <= 692)) {
-   roundValue = 2; 
-  }
-  /* 3KΩ */
-  else if ((781 < value) && (value <= 801)) {
-   roundValue = 3; 
-  }
-//  /* 1.2KΩ */
-//  else if ((906 < value) && (value <= 926)) {
-//    roundValue = 4;
-//  }
-//  /* 750Ω */
-//  else if ((943 < value) && (value <= 963)) {
-//    roundValue = 5;
-//  }
-//  /* 510Ω */
-//  else if ((964 < value) && (value <= 974)) {
-//    roundValue = 6;
-//  }
-//  /* 390Ω */
-//  else if ((975 < value) && (value <= 995)) {
-//    roundValue = 7;
-//  }
-//  /* 100Ω */
-//  else if ((1001 < value) && (value <= 1021)) {
-//    roundValue = 8;
-//  }
-  else {
-    roundValue = 0;
-  }
-  
-  return roundValue;
-}
-
-/*
  * Name : sendData
  * description: Processing側にデータ送信
  * --------------------------------------------
  * argument
  *  [in] int* p_sensorValue  : センサー値保持領域のアドレス
  *  [in] int  sensorValueSize : センサー値保持領域のサイズ
- *  [in] int  bpm            : BPM
- *  [in] int  waveKind       : 波形の種類
+ *  [in] int  octave         : 音の高さ
+ *  [in] int  vibrato       : delay
  * retturn
  *  none
  * --------------------------------------------
  */
-void sendData (int* pSensorValue, int sensorValueSize, int bpm, int volume, int waveKind) {
+void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato) {
     /* 送信データ:0:カウンター、1~8:音階、9:BPM、10:ボリューム、11:波形 */
     int sendData[12];
     int sendSize = 0;
@@ -420,17 +395,17 @@ void sendData (int* pSensorValue, int sensorValueSize, int bpm, int volume, int 
     index = sendSize;
 
     /* 送信データにBPM設定 */
-    sendData[index] = bpm;
-    sendSize++;
-    index = sendSize;
+//    sendData[index] = bpm;
+//    sendSize++;
+//    index = sendSize;
 
     /* 送信データにボリューム設定 */
-    sendData[index] = volume;
+    sendData[index] = octave;
     sendSize++;
     index = sendSize;
 
     /* 送信データに波形を設定 */
-    sendData[index] = waveKind;
+    sendData[index] = vibrato;
     sendSize++;
     index = sendSize;
 

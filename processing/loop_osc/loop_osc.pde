@@ -16,7 +16,7 @@ float diameter;
 //int[] resvData = new int[11];
 
 OscP5 oscP5;
-NetAddress myRemoteLocation;
+NetAddress maxLocation;
 
 final String serialPortName = "/dev/cu.usbmodem1421";
 
@@ -27,26 +27,28 @@ int gDataCnt = 0;
 int gStepCnt = 0;
 int gSteps[] = new int[STEP_NUM];
 int gBpm = 0;
-int gVolume = 0;
-int gWaveKind = 0;
+int gOctave = 0;
+int gVibrato = 0;
+//int gVolume = 0;
+//int gWaveKind = 0;
 
 void setup(){
   //size(640,480);
   
   //Serial Port Open
   //myPort = new Serial(this, serialPortName, 9600);
-  myPort = new Serial(this, serialPortName, 115200);
+  //myPort = new Serial(this, serialPortName, 115200);
   
   /* 受信用の変数。右の数字はポート番号。送信側のポート番号とあわせる。 */
-  //oscP5 = new OscP5(this,7401);
+  oscP5 = new OscP5(this,7100);
   
   //送信用オブジェクト。左側の数字が相手のIPアドレス、右側が相手のポート番号。
-  oscP5 = new OscP5(this,7400);
-  myRemoteLocation = new NetAddress(toMaxIPAddr,7400);
+  maxLocation = new NetAddress(toMaxIPAddr, 7400);
   
   //データを送る先の関数を登録する。ここでは、getDataは相手先の関数。
   //「/count」は送信側と受信側で同じである必要がある暗号のようなもの
-  //oscP5.plug(this, "getCounter","/count");
+  oscP5.plug(this, "syncStart","/start");
+  oscP5.plug(this, "forceSync","/sync");
 }
 
 void draw(){
@@ -56,14 +58,20 @@ void draw(){
 }
 
 //OSC Receive Event (Counter)
-//public void getCounter(int aCount){
-//     println("getCounter " + aCount);
-//    //count = aCount;
-//    myPort.write(aCount);
-//}
+public void syncStart(){
+     println("start");
+    //count = aCount;
+    myPort.write(1);
+}
+
+public void forceSync(){
+     println("sync");
+    //count = aCount;
+    myPort.write(2);
+}
 
 //Serial Receive Event
-void serialEvent(Serial myPort){
+void serialEvent(Serial myPort) {
   int resvValue = 0;
   
    
@@ -78,14 +86,16 @@ void serialEvent(Serial myPort){
     else if (1 <= gDataCnt && gDataCnt <= 8) {
       gSteps[gDataCnt - 1] = resvValue;
     }
+    //else if (gDataCnt == 9) {
+    //  gBpm = resvValue;
+    //}
     else if (gDataCnt == 9) {
-      gBpm = resvValue;
+      gOctave = resvValue;
+      //gVolume = resvValue;
     }
     else if (gDataCnt == 10) {
-      gVolume = resvValue;
-    }
-    else if (gDataCnt == 11) {
-      gWaveKind = resvValue;
+      gVibrato = resvValue;
+      //gWaveKind = resvValue;
     }
   //}
   //print(gDataCnt);
@@ -96,36 +106,36 @@ void serialEvent(Serial myPort){
       //println("count: " + gStepCnt);
       OscMessage countMsg = new OscMessage("/counter");
       countMsg.add(gStepCnt);
-      oscP5.send(countMsg, myRemoteLocation); //送信 
+      oscP5.send(countMsg, maxLocation); //送信 
     }
     //Send Steps
     else if (gDataCnt == 8) {
       //println(gSteps);
       OscMessage stepMsg = new OscMessage("/steps");
       stepMsg.add(gSteps);
-      oscP5.send(stepMsg, myRemoteLocation); //送信
+      oscP5.send(stepMsg, maxLocation); //送信
     }
     //Send BPM
+    //else if (gDataCnt == 9) {
+    //  //println("bpm: " + gBpm);
+    //  OscMessage bpmMsg = new OscMessage("/bpm");
+    //  bpmMsg.add(gBpm);
+    //  oscP5.send(bpmMsg, maxLocation); //送信
+    //}
+    //Send Octave
     else if (gDataCnt == 9) {
-      //println("bpm: " + gBpm);
-      OscMessage bpmMsg = new OscMessage("/bpm");
-      bpmMsg.add(gBpm);
-      oscP5.send(bpmMsg, myRemoteLocation); //送信
-    }
-    //Send Volume
-    else if (gDataCnt == 10) {
       //println("volume: " + gVolume);
-      OscMessage volumeMsg = new OscMessage("/volume");
-      volumeMsg.add(gVolume);
-      oscP5.send(volumeMsg, myRemoteLocation); //送信
+      OscMessage octaveMsg = new OscMessage("/octave");
+      octaveMsg.add(gOctave);
+      oscP5.send(octaveMsg, maxLocation); //送信
     }
-    //Send Wave
-    else if (gDataCnt == 11) {
+    //Send Delay
+    else if (gDataCnt == 10) {
       //println("wave" + gWaveKind);
-      OscMessage waveMsg = new OscMessage("/osculator");
-      waveMsg.add(gWaveKind);
+      OscMessage delayMsg = new OscMessage("/delay");
+      delayMsg.add(gVibrato);
       //waveMsg.add(1);
-      oscP5.send(waveMsg, myRemoteLocation); //送信
+      oscP5.send(delayMsg, maxLocation); //送信
     }
   }
   catch (RuntimeException e) {

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Loop Controller</title>
+</head>
+<body>
+    <p>
+        <input type="text" placeholder="input shoprano ip address" id="ip-shoprano">
+        <input type="text" placeholder="input tennor ip address" id="ip-tennor">
+        <!-- <button id="btn-connect">CONNECT</button> -->
+        <button id="btn-start">START</button>
+        <button id="btn-sync">SYNC</button>
+    </p>
+
+    <script src="./scripts/plugin/jquery-3.1.1.min.js" charset="utf-8"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // var btnConnectEl = document.querySelector('#btn-connect');
+            var btnStartEl = document.querySelector('#btn-start');
+            var btnSyncEl = document.querySelector('#btn-sync');
+
+            var isStart = false;
+
+            //スタートボタン押下
+            btnStartEl.addEventListener('click', function(){
+                var shopranoIP = document.querySelector('#ip-shoprano').value;
+                var tennorIP = document.querySelector('#ip-tennor').value;
+
+                console.log(shopranoIP, tennorIP);
+                if ((shopranoIP === '') || (tennorIP === '')) {
+                    alert('you have to input IP address.');
+                    return;
+                }
+
+                if (true === isStart) {
+                    alert('loop already started.');
+                    return;
+                }
+
+                $.ajax({
+                    type:'get',
+                    url:'../start/' + shopranoIP + '/' + tennorIP,
+                    timeout:10000
+                }).done(function(response) {
+                    console.log(response);
+                    isStart = true;
+                }).fail(function() {
+                    console.log('error start');
+                });
+            });
+
+            //同期ボタン押下
+            btnSyncEl.addEventListener('click', function(){
+                if (true !== isStart) {
+                    alert('press start button.');
+                    return;
+                }
+
+                $.ajax({
+                    type:'get',
+                    url:'../sync',
+                    timeout:10000
+                }).done(function(response) {
+                    console.log(response);
+                }).fail(function() {
+                    console.log('error start');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

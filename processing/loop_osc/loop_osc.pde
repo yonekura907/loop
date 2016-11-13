@@ -4,6 +4,8 @@ import processing.serial.*;
 
 Serial myPort;
 
+final int BPM = 60;
+
 final int STEP_NUM = 8;
 float fillColor;
 float diameter;
@@ -32,11 +34,12 @@ int gVibrato = 0;
 //int gVolume = 0;
 //int gWaveKind = 0;
 
+boolean isStart = false;
+
 void setup(){
   //size(640,480);
   
   //Serial Port Open
-  //myPort = new Serial(this, serialPortName, 9600);
   //myPort = new Serial(this, serialPortName, 115200);
   
   /* 受信用の変数。右の数字はポート番号。送信側のポート番号とあわせる。 */
@@ -55,19 +58,22 @@ void draw(){
   //background(0);
   //fill(fillColor);
   //ellipse(width/2,height/2,diameter,diameter);
+  
+  testCode();
 }
 
 //OSC Receive Event (Counter)
 public void syncStart(){
      println("start");
     //count = aCount;
-    myPort.write(1);
+    isStart = true;
+    //myPort.write(1);
 }
 
 public void forceSync(){
      println("sync");
     //count = aCount;
-    myPort.write(2);
+    //myPort.write(2);
 }
 
 //Serial Receive Event
@@ -146,4 +152,16 @@ void serialEvent(Serial myPort) {
   if (12 == gDataCnt) {
     gDataCnt = 0;
   }
+}
+
+void testCode() {
+ 
+  if (true != isStart) {
+    return;
+  }
+  OscMessage countMsg = new OscMessage("/counter");
+  countMsg.add(gStepCnt);
+  oscP5.send(countMsg, maxLocation); //送信 
+  
+  delay((60 / BPM) * (4 / 4) * 1000);
 }

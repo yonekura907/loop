@@ -26,7 +26,9 @@ const int OCTAVEPIN = 8;
 const int VIBRATOPIN = 9;
 
 /* BPMInput用PIN */
-const int BPMPIN = 10;
+//const int BPMPIN = 10;
+/* テンポ用PIN */
+const int TEMPOPIN = 10;
 
 
 /*
@@ -40,6 +42,10 @@ const int  LEDPIN[] = {0, 1, 2, 3, 5, 7, 11, 13};
 
 /* ループカウント */
 int gLoopCnt = 0;
+
+/* ループカウント */
+int gBpm = 60;
+
 
 /*
  * データ保存
@@ -63,6 +69,9 @@ void setup( ){
 
   /* カウンターリセット */
   gLoopCnt = 0;
+
+  /* BPMリセット */
+  gBpm = 60;
   
   /* シリアルポートオープン */
 //  Serial.begin(9600);
@@ -83,11 +92,13 @@ void setup( ){
 void loop(){
   int sensorCnt = 0;
   int steps[STEPNUM];
-  int bpm = 0;
+//  int bpm = 0;
+  int tempo = 0;
   int volume = 0;
   int waitTime = 0;
   int waveKind = 0;
   int input = 0;
+  bool isSound = true;
 
   int cnt;
 
@@ -113,7 +124,7 @@ void loop(){
   getStepNum(steps, STEPNUM);
 
   /* BPM取得 */
-  bpm = getBPM();
+//  bpm = getBPM();
 
   /* オクターブ取得 */
   octave = getOctave();
@@ -121,23 +132,44 @@ void loop(){
   /* ヴィブラート取得 */
   vibrato = getVibrato();
 
-  /* データをProcessingに送信 */
-  sendData(steps, STEPNUM, octave, vibrato);
-//  sendData(steps, STEPNUM, bpm, volume, waveKind);
-  
-  /* LED表示 */
-  showLED(gLoopCnt);
   /* BPM -> msec変換 */
-  waitTime = bpmToMSec(bpm);
+//  waitTime = bpmToMSec(bpm);
+  waitTime = bpmToMSec(gBpm);
   
   /* BPM最速の時の待機時間より早い場合は補正する */
   if (75 > waitTime) {
     waitTime = 75;
   }
+
+  /* テンポOFF/ON取得 */
+  tempo = getTempo();
+  if (1 == tempo) {
+    /* ランダムで1テンポ遅らせる */
+    if (random(0, 1) < 0.5) {
+      isSound = false;
+    }
+  }
   
-  gLoopCnt++;
-  if (STEPNUM <= gLoopCnt) {
-    gLoopCnt = 0;
+  if (true == isSound) {
+    /* データをProcessingに送信 */
+    sendData(steps, STEPNUM, octave, vibrato);
+  
+    /* LED表示 */
+    showLED(gLoopCnt % STEPNUM);
+
+    /* 4周したらBPM変更 */
+    gLoopCnt++;
+    if ((STEPNUM * 4) <= gLoopCnt) {
+    
+      if (60 == gBpm) {
+        gBpm = 120;
+      }
+      else {
+        gBpm = 60;
+      }
+      
+      gLoopCnt = 0;
+    }
   }
   
   /* BPMに合わせて待機 */
@@ -216,8 +248,9 @@ void getStepNum(int* pStepBuff, int buffSize) {
   return;
 }
 
+
 /*
- * Name : getBPM
+ * Name : getTempo
  * description: センサー値からBPMを取得 
  * --------------------------------------------
  * argument
@@ -226,17 +259,40 @@ void getStepNum(int* pStepBuff, int buffSize) {
  *  bpm         BPM値
  * --------------------------------------------
  */
-int getBPM() {
+int getTempo() {
   int value = 0;
-  int bpm = 0;
+  int tempo = 0;
   
   /* センサー値取得を取得して60、120、240に変換 */
-  value = analogRead(BPMPIN);
-  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
+  value = analogRead(TEMPOPIN);
+  tempo = roundAnalogToDigital(value);
 //  bpm = int(float(value) * (180 - 40) / 1023 + 40);
 
-  return bpm;
+  return tempo;
 }
+
+
+///*
+// * Name : getBPM
+// * description: センサー値からBPMを取得 
+// * --------------------------------------------
+// * argument
+// *  none
+// * retturn
+// *  bpm         BPM値
+// * --------------------------------------------
+// */
+//int getBPM() {
+//  int value = 0;
+//  int bpm = 0;
+//  
+//  /* センサー値取得を取得して60、120、240に変換 */
+//  value = analogRead(BPMPIN);
+//  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
+////  bpm = int(float(value) * (180 - 40) / 1023 + 40);
+//
+//  return bpm;
+//}
 
 
 /*
@@ -385,7 +441,7 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato) 
     memset(sendData, 0, 12 * sizeof(int));
 
     /* 送信データにカウンターを設定 */
-    sendData[0] = gLoopCnt;
+    sendData[0] = gLoopCnt % STEPNUM;
     sendSize++;
     index = sendSize;
     

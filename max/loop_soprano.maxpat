@@ -9,7 +9,7 @@
 			"modernui" : 1
 		}
 ,
-		"rect" : [ 55.0, 79.0, 1319.0, 782.0 ],
+		"rect" : [ 55.0, 79.0, 928.0, 782.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -1512,7 +1512,7 @@
 				"box" : 				{
 					"id" : "obj-59",
 					"maxclass" : "number",
-					"maximum" : 200,
+					"maximum" : 240,
 					"minimum" : 40,
 					"numinlets" : 1,
 					"numoutlets" : 2,

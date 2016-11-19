@@ -2375,8 +2375,8 @@
 			}
  ],
 		"parameters" : 		{
-			"obj-54" : [ "Synth", "Synth", 0 ],
-			"obj-55" : [ "Delay", "Delay", 0 ]
+			"obj-55" : [ "Delay", "Delay", 0 ],
+			"obj-54" : [ "Synth", "Synth", 0 ]
 		}
 ,
 		"dependency_cache" : [  ],

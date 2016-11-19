@@ -25,7 +25,7 @@ int gBpm = 0;
 int gOctave = 0;
 int gVibrato = 0;
 
-boolean isStart = false;
+// boolean isStart = false;
 
 void setup(){
   //size(640,480);
@@ -57,7 +57,7 @@ void draw(){
 //OSC Receive Event (Counter)
 public void syncStart(){
      println("start");
-    isStart = true;
+    // isStart = true;
     myPort.write(1);
 }
 
@@ -84,9 +84,11 @@ void serialEvent(Serial myPort) {
     gSteps[gDataCnt - 1] = resvValue;
   }
   else if (gDataCnt == 9) {
-    gOctave = resvValue;
+    //0/1でMAXに渡す
+    gOctave = resvValue - 1;
   }
   else if (gDataCnt == 10) {
+    //0/1でMaxに渡す
     gVibrato = resvValue;
   }
 

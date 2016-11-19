@@ -42,17 +42,17 @@ router.get('/start/:ip1/:ip2', function(request, response) {
 });
 
 
-router.get('/sync', function(request, response) {
-    console.log('Sending message sync');
-    oscClient.push(new osc.Client(request.params.ip1, 7100));
-    oscClient.push(new osc.Client(request.params.ip2, 7100));
-
-    var oscMsg = new osc.Message('/sync');
-    oscClient[0].send(oscMsg, 200);
-    oscClient[1].send(oscMsg, 200);
-
-    response.send("success sync");
-});
+// router.get('/sync', function(request, response) {
+//     console.log('Sending message sync');
+//     oscClient.push(new osc.Client(request.params.ip1, 7100));
+//     oscClient.push(new osc.Client(request.params.ip2, 7100));
+//
+//     var oscMsg = new osc.Message('/sync');
+//     oscClient[0].send(oscMsg, 200);
+//     oscClient[1].send(oscMsg, 200);
+//
+//     response.send("success sync");
+// });
 
 router.get('/sync', function(request, response) {
     console.log('Sending message stop');

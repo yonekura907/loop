@@ -12,6 +12,7 @@
         <button id="btn-start">START</button>
         <button id="btn-sync">SYNC</button>
         <button id="btn-stop">STOP</button>
+        <input type="checkbox" value="auto sync" id="check-AutoSync">
     </p>
 
     <script src="./scripts/plugin/jquery-3.1.1.min.js" charset="utf-8"></script>
@@ -21,8 +22,59 @@
             var btnStartEl = document.querySelector('#btn-start');
             var btnSyncEl = document.querySelector('#btn-sync');
             var btnStopEl = document.querySelector('#btn-stop');
+            var chkAutoSyncEl = document.querySelector('#check-AutoSync');
 
             var isStart = false;
+
+            var autoSyncTimer = 0;
+
+            function sendStartCommand() {
+              return new Promise(function(resolve, reject) {
+                $.ajax({
+                    type:'get',
+                    url:'../start/' + shopranoIP + '/' + tennorIP,
+                    timeout:10000
+                }).done(function(response) {
+                  console.log(response);
+                  resolve();
+                }).fail(function() {
+                  // console.log('error start');
+                  reject('Start error');
+                });
+              });
+            }
+
+            function sendStopCommand() {
+              return new Promise(function(resolve, reject) {
+                $.ajax({
+                    type:'get',
+                    url:'../stop',
+                    timeout:10000
+                }).done(function(response) {
+                    resolve();
+                }).fail(function() {
+                    reject('Stop error');
+                });
+              });
+            }
+
+            function execSync() {
+              //停止コマンドを送信
+              sendStopCommand().then(function(){
+                //一拍置いて再スタート
+                setTimeout(function(){
+                  sendStartCommand().then(function(){
+                    isStart = true;
+                    shopranoIP.disabled = 'true';
+                    tennorIP.disabled = 'true';
+                  }, function(err){
+                    console.log(err);
+                  });
+                }, 1000)
+              }, function(err){
+                console.log(err);
+              });
+            }
 
             //スタートボタン押下
             btnStartEl.addEventListener('click', function(){
@@ -40,15 +92,18 @@
                     return;
                 }
 
-                $.ajax({
-                    type:'get',
-                    url:'../start/' + shopranoIP + '/' + tennorIP,
-                    timeout:10000
-                }).done(function(response) {
-                    console.log(response);
-                    isStart = true;
-                }).fail(function() {
-                    console.log('error start');
+                sendStartCommand().then(function(){
+                  if (true === chkAutoSyncEl.checked) {
+                    autoSyncTimer = setInterval(function(){
+                      execSync();
+                    }, 8*1000);
+                  }
+
+                  isStart = true;
+                  shopranoIP.disabled = 'true';
+                  tennorIP.disabled = 'true';
+                }, function(err){
+                  console.log(err);
                 });
             });
 
@@ -59,44 +114,60 @@
                     return;
                 }
 
-                $.ajax({
-                    type:'get',
-                    url:'../sync',
-                    timeout:10000
-                }).done(function(response) {
-                    console.log(response);
-                }).fail(function() {
-                    console.log('error start');
-                });
-            });
-            //同期ボタン押下
-            btnSyncEl.addEventListener('click', function(){
-                if (true !== isStart) {
-                    alert('press start button.');
-                    return;
+                execSync();
+                if (true === chkAutoSyncEl.checked) {
+                  //タイマーリスタート
+                  clearInterval(autoSyncTimer);
+                  autoSyncTimer = setInterval(function(){
+                    execSync();
+                  }, 8*1000);
                 }
 
-                $.ajax({
-                    type:'get',
-                    url:'../sync',
-                    timeout:10000
-                }).done(function(response) {
-                    console.log(response);
-                }).fail(function() {
-                    console.log('error sync');
-                });
+                // //停止コマンドを送信
+                // sendStopCommand().then(function(){
+                //   //一拍置いて再スタート
+                //   setTimeout(function(){
+                //     sendStartCommand().then(function(){
+                //       isStart = true;
+                //       shopranoIP.disabled = 'true';
+                //       tennorIP.disabled = 'true';
+                //     }, function(err){
+                //       console.log(err);
+                //     });
+                //   }, 1000)
+                // }, function(err){
+                //   console.log(err);
+                // });
+                //
+                // $.ajax({
+                //     type:'get',
+                //     url:'../sync',
+                //     timeout:10000
+                // }).done(function(response) {
+                //     console.log(response);
+                // }).fail(function() {
+                //     console.log('error start');
+                // });
+
+
             });
 
+            //停止ボタン押下
             btnStopEl.addEventListener('click', function(){
-              $.ajax({
-                  type:'get',
-                  url:'../stop',
-                  timeout:10000
-              }).done(function(response) {
+                if (true !== isStart) {
+                    alert('press start button.');
+                    return;
+                }
+
+                sendStopCommand().then(function(){
                   isStart = false;
-              }).fail(function() {
-                  console.log('error stop');
-              });
+                  shopranoIP.disabled = 'false';
+                  tennorIP.disabled = 'false';
+                  clearInterval(autoSyncTimer);
+
+                }, function(err) {
+                  console.log(err);
+                });
             });
         });
     </script>

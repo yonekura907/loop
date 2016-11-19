@@ -107,18 +107,27 @@ void loop(){
   /* 初期化 */
   memset(steps, 0, STEPNUM * sizeof(byte));
 
+  /* LED消灯 */
+  /* LEDを点灯させた状態だと可変抵抗の値がうまく取得できなかったので、
+   * 各センサー値取得前に消灯しさせておく
+   */
+  turnOffLED();
+
   /* 同期のメッセージを受けたら強制的にcount0からスタート */
   if (Serial.available() > 0) {
     input = Serial.read();
     if (1 == input) {
+      //Start
       gLoopCnt = 0;
       isStart = true;
     }
-    else if (2 == input) {
-      gLoopCnt = 0;
-      return;
-    }
+    // else if (2 == input) {
+    //   //Sync
+    //   gLoopCnt = 0;
+    //   return;
+    // }
     else if (3 == input) {
+      //Stop
       isStart = false;
     }
   }
@@ -126,12 +135,6 @@ void loop(){
   if (false == isStart) {
     return;
   }
-
-  /* LED消灯 */
-  /* LEDを点灯させた状態だと可変抵抗の値がうまく取得できなかったので、
-   * 各センサー値取得前に消灯しさせておく
-   */
-  turnOffLED();
 
   /* 音階の取得 */
   getStepNum(steps, STEPNUM);
@@ -229,6 +232,7 @@ void showLED(int aCount) {
   ledPin = LEDPIN[aCount];
   digitalWrite(ledPin, HIGH);
 }
+
 
 /*
  * Name : getStepNum

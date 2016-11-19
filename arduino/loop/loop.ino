@@ -30,7 +30,6 @@ const int VIBRATOPIN = 9;
 /* テンポ用PIN */
 const int TEMPOPIN = 10;
 
-
 /*
  * デジタル入出力PIN定義
  * ----------------------------
@@ -45,6 +44,8 @@ int gLoopCnt = 0;
 
 /* ループカウント */
 int gBpm = 60;
+
+bool  isStart = false;
 
 
 /*
@@ -72,17 +73,18 @@ void setup( ){
 
   /* BPMリセット */
   gBpm = 60;
-  
+
   /* シリアルポートオープン */
 //  Serial.begin(9600);
   Serial.begin(115200);
 
-  while(true) {
-    input = Serial.read();
-    if (1 == input) {
-      break;
-    }
-  }
+  // while(true) {
+  //   input = Serial.read();
+  //   if (1 == input) {
+  //     isStart = true;
+  //     break;
+  //   }
+  // }
 }
 
 
@@ -108,10 +110,21 @@ void loop(){
   /* 同期のメッセージを受けたら強制的にcount0からスタート */
   if (Serial.available() > 0) {
     input = Serial.read();
-    if (2 == input) {
+    if (1 == input) {
+      gLoopCnt = 0;
+      isStart = true;
+    }
+    else if (2 == input) {
       gLoopCnt = 0;
       return;
     }
+    else if (3 == input) {
+      isStart = false;
+    }
+  }
+
+  if (false == isStart) {
+    return;
   }
 
   /* LED消灯 */
@@ -135,7 +148,7 @@ void loop(){
   /* BPM -> msec変換 */
 //  waitTime = bpmToMSec(bpm);
   waitTime = bpmToMSec(gBpm);
-  
+
   /* BPM最速の時の待機時間より早い場合は補正する */
   if (75 > waitTime) {
     waitTime = 75;
@@ -149,29 +162,29 @@ void loop(){
       isSound = false;
     }
   }
-  
+
   if (true == isSound) {
     /* データをProcessingに送信 */
     sendData(steps, STEPNUM, octave, vibrato);
-  
+
     /* LED表示 */
     showLED(gLoopCnt % STEPNUM);
 
     /* 4周したらBPM変更 */
     gLoopCnt++;
     if ((STEPNUM * 4) <= gLoopCnt) {
-    
+
       if (60 == gBpm) {
         gBpm = 120;
       }
       else {
         gBpm = 60;
       }
-      
+
       gLoopCnt = 0;
     }
   }
-  
+
   /* BPMに合わせて待機 */
   delay(waitTime);
 }
@@ -179,7 +192,7 @@ void loop(){
 
 /*
  * Name : turnOffLED
- * description: LED点灯  
+ * description: LED点灯
  * --------------------------------------------
  * argument
  *  none
@@ -190,7 +203,7 @@ void loop(){
 void turnOffLED() {
   int sensorCnt = 0;
   int ledPin = -1;
-  
+
   /* 全てのLEDをOFF */
   for (sensorCnt = 0; sensorCnt < STEPNUM; sensorCnt++) {
     digitalWrite(LEDPIN[sensorCnt], LOW);
@@ -200,7 +213,7 @@ void turnOffLED() {
 
 /*
  * Name : showLED
- * description: LED点灯  
+ * description: LED点灯
  * --------------------------------------------
  * argument
  *  [in]  int   aCount  点灯させるLED番号
@@ -251,7 +264,7 @@ void getStepNum(int* pStepBuff, int buffSize) {
 
 /*
  * Name : getTempo
- * description: センサー値からBPMを取得 
+ * description: センサー値からBPMを取得
  * --------------------------------------------
  * argument
  *  none
@@ -262,7 +275,7 @@ void getStepNum(int* pStepBuff, int buffSize) {
 int getTempo() {
   int value = 0;
   int tempo = 0;
-  
+
   /* センサー値取得を取得して60、120、240に変換 */
   value = analogRead(TEMPOPIN);
   tempo = roundAnalogToDigital(value);
@@ -274,7 +287,7 @@ int getTempo() {
 
 ///*
 // * Name : getBPM
-// * description: センサー値からBPMを取得 
+// * description: センサー値からBPMを取得
 // * --------------------------------------------
 // * argument
 // *  none
@@ -285,7 +298,7 @@ int getTempo() {
 //int getBPM() {
 //  int value = 0;
 //  int bpm = 0;
-//  
+//
 //  /* センサー値取得を取得して60、120、240に変換 */
 //  value = analogRead(BPMPIN);
 //  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
@@ -317,7 +330,7 @@ int bpmToMSec(int bpm) {
 
 /*
  * Name : getOctave
- * description: センサー値から音の高さを取得 
+ * description: センサー値から音の高さを取得
  * --------------------------------------------
  * argument
  *  none
@@ -339,7 +352,7 @@ int getOctave() {
 
 /*
  * Name : getVibrato
- * description: センサー値からdelayを取得 
+ * description: センサー値からdelayを取得
  * --------------------------------------------
  * argument
  *  none
@@ -361,7 +374,7 @@ int getVibrato() {
 
 /*
  * Name : roundAnalogToDigital
- * description: センサー値丸め  
+ * description: センサー値丸め
  * --------------------------------------------
  * argument
  *  [in]  int   value  センサ値
@@ -371,18 +384,18 @@ int getVibrato() {
  */
 int roundAnalogToDigital(int value) {
   int roundValue = 0;
-  
+
   /* 7.5KΩ */
   if ((579 < value) && (value <= 599)) {
-   roundValue = 1; 
+   roundValue = 1;
   }
   /* 5.1KΩ */
   else if ((672 < value) && (value <= 692)) {
-   roundValue = 2; 
+   roundValue = 2;
   }
   /* 3KΩ */
   else if ((781 < value) && (value <= 801)) {
-   roundValue = 3; 
+   roundValue = 3;
   }
   /* 1.2KΩ */
   else if ((906 < value) && (value <= 926)) {
@@ -407,7 +420,7 @@ int roundAnalogToDigital(int value) {
   else {
     roundValue = 0;
   }
-  
+
   return roundValue;
 }
 
@@ -444,7 +457,7 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato) 
     sendData[0] = gLoopCnt % STEPNUM;
     sendSize++;
     index = sendSize;
-    
+
     /* 送信データに音階の値を設定 */
     memcpy(&sendData[index], pSensorValue, sensorValueSize * sizeof(pSensorValue[0]));
     sendSize += sensorValueSize;
@@ -470,13 +483,11 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato) 
 //      Serial.print(" ");
 //    }
 //    Serial.println("");
-    
-    /* SerialPort経由でProcessing側にデータを送信 */ 
+
+    /* SerialPort経由でProcessing側にデータを送信 */
     for (dataCnt = 0; dataCnt < 12; dataCnt++) {
       Serial.write(sendData[dataCnt]);
     }
 
     return;
 }
-
-

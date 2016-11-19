@@ -29,27 +29,28 @@ boolean isStart = false;
 
 void setup(){
   //size(640,480);
-  
+
   //Serial Port Open
   myPort = new Serial(this, serialPortName, 115200);
-  
+
   /* 受信用の変数。右の数字はポート番号。送信側のポート番号とあわせる。 */
   oscP5 = new OscP5(this,7100);
-  
+
   //送信用オブジェクト。左側の数字が相手のIPアドレス、右側が相手のポート番号。
   maxLocation = new NetAddress(toMaxIPAddr, 7400);
-  
+
   //データを送る先の関数を登録する。ここでは、getDataは相手先の関数。
   //「/count」は送信側と受信側で同じである必要がある暗号のようなもの
   oscP5.plug(this, "syncStart","/start");
   oscP5.plug(this, "forceSync","/sync");
+  oscP5.plug(this, "syncStop", "/stop");
 }
 
 void draw(){
   //background(0);
   //fill(fillColor);
   //ellipse(width/2,height/2,diameter,diameter);
-  
+
   //testCode();
 }
 
@@ -65,10 +66,15 @@ public void forceSync(){
     myPort.write(2);
 }
 
+public void syncStop(){
+     println("stop");
+    myPort.write(3);
+}
+
 //Serial Receive Event
 void serialEvent(Serial myPort) {
   int resvValue = 0;
-  
+
   resvValue = myPort.read();
 
   if (gDataCnt == 0) {
@@ -83,14 +89,14 @@ void serialEvent(Serial myPort) {
   else if (gDataCnt == 10) {
     gVibrato = resvValue;
   }
-  
+
   try {
     //Send Steps
     if (gDataCnt == 0) {
       //println("count: " + gStepCnt);
       OscMessage countMsg = new OscMessage("/counter");
       countMsg.add(gStepCnt);
-      oscP5.send(countMsg, maxLocation); //送信 
+      oscP5.send(countMsg, maxLocation); //送信
     }
     //Send Steps
     else if (gDataCnt == 8) {
@@ -115,9 +121,9 @@ void serialEvent(Serial myPort) {
     }
   }
   catch (RuntimeException e) {
-    println("Error:OSC Message Send.."); 
+    println("Error:OSC Message Send..");
   }
-  
+
   gDataCnt++;
   if (12 == gDataCnt) {
     gDataCnt = 0;
@@ -125,13 +131,13 @@ void serialEvent(Serial myPort) {
 }
 
 //void testCode() {
- 
+
 //  if (true != isStart) {
 //    return;
 //  }
 //  OscMessage countMsg = new OscMessage("/counter");
 //  countMsg.add(gStepCnt);
-//  oscP5.send(countMsg, maxLocation); //送信 
-  
+//  oscP5.send(countMsg, maxLocation); //送信
+
 //  delay((60 / BPM) * (4 / 4) * 1000);
 //}

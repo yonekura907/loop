@@ -89,7 +89,7 @@ void serialEvent(Serial myPort) {
   }
   else if (gDataCnt == 10) {
     //0/1でMaxに渡す
-    gVibrato = resvValue;
+    gVibrato = resvValue - 1;
   }
 
   try {

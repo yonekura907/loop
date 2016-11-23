@@ -96,9 +96,9 @@ void loop(){
   int steps[STEPNUM];
 //  int bpm = 0;
   int tempo = 0;
-  int volume = 0;
+  int octave = 0;
   int waitTime = 0;
-  int waveKind = 0;
+  int vibrato = 0;
   int input = 0;
   bool isSound = true;
 
@@ -121,11 +121,6 @@ void loop(){
       gLoopCnt = 0;
       isStart = true;
     }
-    // else if (2 == input) {
-    //   //Sync
-    //   gLoopCnt = 0;
-    //   return;
-    // }
     else if (3 == input) {
       //Stop
       isStart = false;
@@ -140,17 +135,12 @@ void loop(){
   getStepNum(steps, STEPNUM);
 
   /* BPM取得 */
-//  bpm = getBPM();
 
   /* オクターブ取得 */
   octave = getOctave();
 
   /* ヴィブラート取得 */
   vibrato = getVibrato();
-
-  /* BPM -> msec変換 */
-//  waitTime = bpmToMSec(bpm);
-  waitTime = bpmToMSec(gBpm);
 
   /* BPM最速の時の待機時間より早い場合は補正する */
   if (75 > waitTime) {
@@ -160,32 +150,26 @@ void loop(){
   /* テンポOFF/ON取得 */
   tempo = getTempo();
   if (1 == tempo) {
-    /* ランダムで1テンポ遅らせる */
-    if (random(0, 1) < 0.5) {
-      isSound = false;
-    }
+    gBpm = 60;
+  }
+  else {
+    gBpm = 120;
   }
 
-  if (true == isSound) {
-    /* データをProcessingに送信 */
-    sendData(steps, STEPNUM, octave, vibrato);
+  /* BPM -> msec変換 */
+  waitTime = bpmToMSec(gBpm);
 
-    /* LED表示 */
-    showLED(gLoopCnt % STEPNUM);
+  /* データをProcessingに送信 */
+  sendData(steps, STEPNUM, octave, vibrato);
 
-    /* 4周したらBPM変更 */
-    gLoopCnt++;
-    if ((STEPNUM * 4) <= gLoopCnt) {
+  /* LED表示 */
+  showLED(gLoopCnt % STEPNUM);
 
-      if (60 == gBpm) {
-        gBpm = 120;
-      }
-      else {
-        gBpm = 60;
-      }
+  /* 4周したらBPM変更 */
+  gLoopCnt++;
+  if ((STEPNUM * 4) <= gLoopCnt) {
 
-      gLoopCnt = 0;
-    }
+    gLoopCnt = 0;
   }
 
   /* BPMに合わせて待機 */

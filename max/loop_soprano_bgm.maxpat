@@ -117,7 +117,7 @@
 						}
 , 						{
 							"number" : 9,
-							"data" : [ 12, "obj-14", "multislider", "list", 1, 8, 2, 5, 3, 5, 1, 8 ]
+							"data" : [ 12, "obj-14", "multislider", "list", 1, 0, 0, 0, 0, 0, 0, 0 ]
 						}
 , 						{
 							"number" : 10,
@@ -2331,6 +2331,15 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-111", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-55", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-66", 0 ],
 					"disabled" : 0,
 					"hidden" : 0,
 					"source" : [ "obj-55", 0 ]

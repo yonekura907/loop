@@ -3,7 +3,7 @@ var express = require('express');
 var app = express();
 
 //静的ファイルの公開
-app.use('/public', express.static('public'));
+app.use(express.static('public'));
 
 //ルーティング設定
 app.use('/', require('./routes/index.js'));

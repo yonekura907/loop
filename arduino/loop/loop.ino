@@ -160,7 +160,7 @@ void loop(){
   waitTime = bpmToMSec(gBpm);
 
   /* データをProcessingに送信 */
-  sendData(steps, STEPNUM, octave, vibrato);
+  sendData(steps, STEPNUM, octave, vibrato, tempo);
 
   /* LED表示 */
   showLED(gLoopCnt % STEPNUM);
@@ -426,8 +426,8 @@ int roundAnalogToDigital(int value) {
  *  none
  * --------------------------------------------
  */
-void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato) {
-    /* 送信データ:0:カウンター、1~8:音階、9:BPM、10:ボリューム、11:波形 */
+void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato, int tempo) {
+    /* 送信データ:0:カウンター、1~8:音階、9:オクターブ、10:ビブラート, 11:テンポ */
     int sendData[12];
     int sendSize = 0;
     int dataCnt = 0;
@@ -461,8 +461,13 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato) 
     sendSize++;
     index = sendSize;
 
-    /* 送信データに波形を設定 */
+    /* 送信データにビブラートを設定 */
     sendData[index] = vibrato;
+    sendSize++;
+    index = sendSize;
+
+    /* 送信データにテンポを設定 */
+    sendData[index] = tempo;
     sendSize++;
     index = sendSize;
 

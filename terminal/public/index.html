@@ -30,6 +30,9 @@
 
             function sendStartCommand() {
               return new Promise(function(resolve, reject) {
+
+                var shopranoIP = document.querySelector('#ip-shoprano').value;
+                var tennorIP = document.querySelector('#ip-tennor').value;
                 $.ajax({
                     type:'get',
                     url:'../start/' + shopranoIP + '/' + tennorIP,

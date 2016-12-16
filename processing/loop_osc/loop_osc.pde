@@ -13,7 +13,7 @@ float diameter;
 OscP5 oscP5;
 NetAddress maxLocation;
 
-final String serialPortName = "/dev/cu.usbmodem1421";
+final String serialPortName = "/dev/cu.usbmodem14111";
 
 //final String toMaxIPAddr = "192.168.43.19";
 final String toMaxIPAddr = "127.0.0.1";

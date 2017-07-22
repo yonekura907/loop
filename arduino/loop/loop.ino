@@ -19,16 +19,17 @@
 /* タイミングInput用PIN */
 const int STEPPIN[] = {0, 1, 2, 3, 4, 5, 6, 7};
 
-/* オクターブInput用PIN */
-const int OCTAVEPIN = 8;
+/* オシレーターInput用PIN */
+const int OSCILLATORPIN = 8;
 
-/* ヴィブラートInput用PIN */
-const int VIBRATOPIN = 9;
+/* 音階Input用PIN */
+const int OCTAVEPIN = 9;
+
+/* DelayInput用PIN */
+const int DELAYPIN = 10;
 
 /* BPMInput用PIN */
-//const int BPMPIN = 10;
-/* テンポ用PIN */
-const int TEMPOPIN = 10;
+const int BPMPIN = 12;
 
 /*
  * デジタル入出力PIN定義
@@ -45,7 +46,7 @@ int gLoopCnt = 0;
 /* ループカウント */
 int gBpm = 60;
 
-bool  isStart = false;
+bool  isStart = true;
 
 
 /*
@@ -94,11 +95,11 @@ void setup( ){
 void loop(){
   int sensorCnt = 0;
   int steps[STEPNUM];
-//  int bpm = 0;
-  int tempo = 0;
+  int bpm = 0;
   int octave = 0;
   int waitTime = 0;
-  int vibrato = 0;
+  int delayNum = 0;
+  int ocsillator = 0;
   int input = 0;
   bool isSound = true;
 
@@ -122,55 +123,50 @@ void loop(){
       isStart = true;
     }
     else if (3 == input) {
-      //Stop
+      //Stopq
       isStart = false;
     }
   }
 
-  if (false == isStart) {
-    return;
-  }
+//  if (false == isStart) {
+//    return;
+//  }
 
   /* 音階の取得 */
   getStepNum(steps, STEPNUM);
 
   /* BPM取得 */
+  bpm = getBPM();
 
   /* オクターブ取得 */
   octave = getOctave();
 
-  /* ヴィブラート取得 */
-  vibrato = getVibrato();
+  /* ディレイ取得 */
+  delayNum = getDelay();
 
+  /* オシレーター取得 */
+  ocsillator = getOscillator();
+
+  /* BPM -> msec変換 */
+  waitTime = bpmToMSec(gBpm);
+  
   /* BPM最速の時の待機時間より早い場合は補正する */
   if (75 > waitTime) {
     waitTime = 75;
   }
 
-  /* テンポOFF/ON取得 */
-  tempo = getTempo();
-  if (1 == tempo) {
-    gBpm = 60;
-  }
-  else {
-    gBpm = 120;
-  }
-
-  /* BPM -> msec変換 */
-  waitTime = bpmToMSec(gBpm);
-
   /* データをProcessingに送信 */
-  sendData(steps, STEPNUM, octave, vibrato, tempo);
+  sendData(steps, STEPNUM, octave, delayNum, bpm, ocsillator);
 
   /* LED表示 */
   showLED(gLoopCnt % STEPNUM);
 
   /* 4周したらBPM変更 */
   gLoopCnt++;
-  if ((STEPNUM * 4) <= gLoopCnt) {
-
-    gLoopCnt = 0;
-  }
+//  if ((STEPNUM * 4) <= gLoopCnt) {
+//
+//    gLoopCnt = 0;
+//  }
 
   /* BPMに合わせて待機 */
   delay(waitTime);
@@ -260,40 +256,41 @@ void getStepNum(int* pStepBuff, int buffSize) {
  *  bpm         BPM値
  * --------------------------------------------
  */
-int getTempo() {
-  int value = 0;
-  int tempo = 0;
-
-  /* センサー値取得を取得して60、120、240に変換 */
-  value = analogRead(TEMPOPIN);
-  tempo = roundAnalogToDigital(value);
-//  bpm = int(float(value) * (180 - 40) / 1023 + 40);
-
-  return tempo;
-}
-
-
-///*
-// * Name : getBPM
-// * description: センサー値からBPMを取得
-// * --------------------------------------------
-// * argument
-// *  none
-// * retturn
-// *  bpm         BPM値
-// * --------------------------------------------
-// */
-//int getBPM() {
+//int getTempo() {
 //  int value = 0;
-//  int bpm = 0;
+//  int tempo = 0;
 //
 //  /* センサー値取得を取得して60、120、240に変換 */
-//  value = analogRead(BPMPIN);
-//  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
+//  value = analogRead(TEMPOPIN);
+//  tempo = roundAnalogToDigital(value);
 ////  bpm = int(float(value) * (180 - 40) / 1023 + 40);
 //
-//  return bpm;
+//  return tempo;
 //}
+
+
+/*
+ * Name : getBPM
+ * description: センサー値からBPMを取得
+ * --------------------------------------------
+ * argument
+ *  none
+ * retturn
+ *  bpm         BPM値
+ * --------------------------------------------
+ */
+int getBPM() {
+  int value = 0;
+  int bpm = 0;
+
+  /* センサー値取得を取得して60、120、240に変換 */
+  value = analogRead(BPMPIN);
+  bpm = map(value, 300, 1023, 60, 240);
+//  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
+//  bpm = int(float(value) * (180 - 40) / 1023 + 40);
+
+  return bpm;
+}
 
 
 /*
@@ -339,7 +336,7 @@ int getOctave() {
 
 
 /*
- * Name : getVibrato
+ * Name : getDelay
  * description: センサー値からdelayを取得
  * --------------------------------------------
  * argument
@@ -348,17 +345,37 @@ int getOctave() {
  *  volume         音量
  * --------------------------------------------
  */
-int getVibrato() {
+int getDelay() {
   int vibrato = 0;
   int value = 0;
 
   /* センサー値取得 */
-  value = analogRead(VIBRATOPIN);
+  value = analogRead(DELAYPIN);
   vibrato = roundAnalogToDigital(value);
 
   return vibrato;
 }
 
+/*
+ * Name : getOscillator
+ * description: センサー値からdelayを取得
+ * --------------------------------------------
+ * argument
+ *  none
+ * retturn
+ *  volume         音量
+ * --------------------------------------------
+ */
+int getOscillator() {
+  int oscillo = 0;
+  int value = 0;
+
+  /* センサー値取得 */
+  value = analogRead(OSCILLATORPIN);
+  oscillo = roundAnalogToDigital(value);
+
+  return oscillo;
+}
 
 /*
  * Name : roundAnalogToDigital
@@ -426,7 +443,7 @@ int roundAnalogToDigital(int value) {
  *  none
  * --------------------------------------------
  */
-void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato, int tempo) {
+void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm, int bpm, int ocsillator) {
     /* 送信データ:0:カウンター、1~8:音階、9:オクターブ、10:ビブラート, 11:テンポ */
     int sendData[12];
     int sendSize = 0;
@@ -452,22 +469,22 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int vibrato, 
     index = sendSize;
 
     /* 送信データにBPM設定 */
-//    sendData[index] = bpm;
-//    sendSize++;
-//    index = sendSize;
+    sendData[index] = bpm;
+    sendSize++;
+    index = sendSize;
 
-    /* 送信データにボリューム設定 */
+    /* 送信データに音階設定 */
     sendData[index] = octave;
     sendSize++;
     index = sendSize;
 
     /* 送信データにビブラートを設定 */
-    sendData[index] = vibrato;
+    sendData[index] = delayNUm;
     sendSize++;
     index = sendSize;
 
-    /* 送信データにテンポを設定 */
-    sendData[index] = tempo;
+    /* 送信データにオシレータを設定 */
+    sendData[index] = ocsillator;
     sendSize++;
     index = sendSize;
 

@@ -21,10 +21,10 @@ final String toMaxIPAddr = "127.0.0.1";
 int gDataCnt = 0;
 int gStepCnt = 0;
 int gSteps[] = new int[STEP_NUM];
-//int gBpm = 0;
+int gBpm = 0;
 int gOctave = 0;
-int gVibrato = 0;
-int gTempo = 0;
+int gDelay = 0;
+int gOScillator = 0;
 
 // boolean isStart = false;
 
@@ -42,10 +42,10 @@ void setup(){
 
   //データを送る先の関数を登録する。ここでは、getDataは相手先の関数。
   //「/count」は送信側と受信側で同じである必要がある暗号のようなもの
-  oscP5.plug(this, "syncStart","/start");
-  oscP5.plug(this, "forceSync","/sync");
-  oscP5.plug(this, "syncStop", "/stop");
-  oscP5.plug(this, "playStep", "/count");
+  //oscP5.plug(this, "syncStart","/start");
+  //oscP5.plug(this, "forceSync","/sync");
+  //oscP5.plug(this, "syncStop", "/stop");
+  //oscP5.plug(this, "playStep", "/count");
 }
 
 void draw(){
@@ -73,23 +73,23 @@ public void syncStop(){
     myPort.write(3);
 }
 
-public void playStep(int count) {
-  OscMessage stepMsg = new OscMessage("/steps");
+//public void playStep(int count) {
+//  OscMessage stepMsg = new OscMessage("/steps");
   
-  if (gTempo == 1) {
-    if (count % 2 == 0) {
-      stepMsg.add(count/2);   
-      oscP5.send(stepMsg, maxLocation); //送信
-    }
-  }
-  else if (gTempo == 2) {
-    if (count >= 8) {
-     count = count - 8; 
-    }
-    stepMsg.add(count);
-    oscP5.send(stepMsg, maxLocation); //送信
-  }
-}
+//  if (gTempo == 1) {
+//    if (count % 2 == 0) {
+//      stepMsg.add(count/2);   
+//      oscP5.send(stepMsg, maxLocation); //送信
+//    }
+//  }
+//  else if (gTempo == 2) {
+//    if (count >= 8) {
+//     count = count - 8; 
+//    }
+//    stepMsg.add(count);
+//    oscP5.send(stepMsg, maxLocation); //送信
+//  }
+//}
 
 //Serial Receive Event
 void serialEvent(Serial myPort) {
@@ -104,16 +104,22 @@ void serialEvent(Serial myPort) {
     gSteps[gDataCnt - 1] = resvValue;
   }
   else if (gDataCnt == 9) {
+    //BPM
     //0/1でMAXに渡す
-    gOctave = resvValue - 1;
+    gBPM = resvValue - 1;
   }
   else if (gDataCnt == 10) {
+    //octave
     //0/1でMaxに渡す
-    gVibrato = resvValue - 1;
+    gOctave = resvValue - 1;
   }
   else if (gDataCnt == 11) {
     //0/1でMaxに渡す
-    gTempo = resvValue;
+    gDelay = resvValue;
+  }
+  else if (gDataCnt == 12) {
+    //oscillator
+    gOScillator = resvValue;
   }
 
   try {
@@ -125,25 +131,35 @@ void serialEvent(Serial myPort) {
     //  oscP5.send(countMsg, maxLocation); //送信
     //}
     //Send Steps
-    else if (gDataCnt == 8) {
+    if (gDataCnt == 8) {
       //println(gSteps);
       OscMessage stepMsg = new OscMessage("/steps");
       stepMsg.add(gSteps);
       oscP5.send(stepMsg, maxLocation); //送信
     }
-    //Send Octave
     else if (gDataCnt == 9) {
+       OscMessage bpmMsg = new OscMessage("/bpm");
+       bpmMsg.add(gBpm);
+       oscP5.send(bpmMsg, maxLocation);
+    }
+    //Send Octave
+    else if (gDataCnt == 10) {
       //println("volume: " + gVolume);
       OscMessage octaveMsg = new OscMessage("/octave");
       octaveMsg.add(gOctave);
       oscP5.send(octaveMsg, maxLocation); //送信
     }
     //Send Delay
-    else if (gDataCnt == 10) {
+    else if (gDataCnt == 11) {
       //println("wave" + gWaveKind);
       OscMessage delayMsg = new OscMessage("/delay");
-      delayMsg.add(gVibrato);
+      delayMsg.add(gDelay);
       oscP5.send(delayMsg, maxLocation); //送信
+    }
+    else if (gDataCnt == 12) {
+      OscMessage oscillatorMsg = new OscMessage("/oscillo");
+      oscillatorMsg.add(gOScillator);
+      oscP5.send(oscillatorMsg, maxLocation);
     }
   }
   catch (RuntimeException e) {
@@ -151,7 +167,7 @@ void serialEvent(Serial myPort) {
   }
 
   gDataCnt++;
-  if (12 == gDataCnt) {
+  if (13 == gDataCnt) {
     gDataCnt = 0;
   }
 }

@@ -115,11 +115,12 @@ void serialEvent(Serial myPort) {
   }
   else if (gDataCnt == 11) {
     //0/1でMaxに渡す
-    gDelay = resvValue;
+    gDelay = resvValue - 1;
   }
   else if (gDataCnt == 12) {
     //oscillator
-    gOScillator = resvValue;
+    //0/1でMaxに渡す
+    gOScillator = resvValue - 1;
   }
 
   try {

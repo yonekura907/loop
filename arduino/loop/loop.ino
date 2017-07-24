@@ -29,7 +29,7 @@ const int OCTAVEPIN = 9;
 const int DELAYPIN = 10;
 
 /* BPMInput用PIN */
-const int BPMPIN = 12;
+const int BPMPIN = 11;
 
 /*
  * デジタル入出力PIN定義
@@ -285,9 +285,11 @@ int getBPM() {
 
   /* センサー値取得を取得して60、120、240に変換 */
   value = analogRead(BPMPIN);
-  bpm = map(value, 300, 1023, 60, 240);
-//  bpm = 60 * pow(2, roundAnalogToDigital(value) - 1);
-//  bpm = int(float(value) * (180 - 40) / 1023 + 40);
+//  Serial.println(value);
+//  bpm = map(value, 0, 1023, 60, 240);
+  
+  bpm = int(float(value) * (240 - 60) / 1023 + 60);
+//  Serial.println(bpm);
 
   return bpm;
 }
@@ -445,7 +447,7 @@ int roundAnalogToDigital(int value) {
  */
 void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm, int bpm, int ocsillator) {
     /* 送信データ:0:カウンター、1~8:音階、9:オクターブ、10:ビブラート, 11:テンポ */
-    int sendData[12];
+    int sendData[13];
     int sendSize = 0;
     int dataCnt = 0;
     int index = 0;
@@ -456,7 +458,7 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm,
     }
 
     /* 送信データ初期化 */
-    memset(sendData, 0, 12 * sizeof(int));
+    memset(sendData, 0, 13 * sizeof(int));
 
     /* 送信データにカウンターを設定 */
     sendData[0] = gLoopCnt % STEPNUM;
@@ -495,9 +497,9 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm,
 //    Serial.println("");
 
     /* SerialPort経由でProcessing側にデータを送信 */
-    for (dataCnt = 0; dataCnt < 12; dataCnt++) {
-      Serial.write(sendData[dataCnt]);
-    }
+//    for (dataCnt = 0; dataCnt < 13; dataCnt++) {
+//      Serial.write(sendData[dataCnt]);
+//    }
 
     return;
 }

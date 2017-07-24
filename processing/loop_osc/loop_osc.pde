@@ -13,7 +13,7 @@ float diameter;
 OscP5 oscP5;
 NetAddress maxLocation;
 
-final String serialPortName = "/dev/cu.usbmodem14111";
+final String serialPortName = "/dev/cu.usbmodem1441";
 
 //final String toMaxIPAddr = "192.168.43.19";
 final String toMaxIPAddr = "127.0.0.1";
@@ -106,7 +106,7 @@ void serialEvent(Serial myPort) {
   else if (gDataCnt == 9) {
     //BPM
     //0/1でMAXに渡す
-    gBPM = resvValue - 1;
+    gBpm = resvValue;
   }
   else if (gDataCnt == 10) {
     //octave
@@ -125,12 +125,12 @@ void serialEvent(Serial myPort) {
 
   try {
     //Send Steps
-    //if (gDataCnt == 0) {
-    //  //println("count: " + gStepCnt);
-    //  OscMessage countMsg = new OscMessage("/counter");
-    //  countMsg.add(gStepCnt);
-    //  oscP5.send(countMsg, maxLocation); //送信
-    //}
+    if (gDataCnt == 0) {
+      //println("count: " + gStepCnt);
+      OscMessage countMsg = new OscMessage("/counter");
+      countMsg.add(gStepCnt);
+      oscP5.send(countMsg, maxLocation); //送信
+    }
     //Send Steps
     if (gDataCnt == 8) {
       //println(gSteps);
@@ -139,25 +139,27 @@ void serialEvent(Serial myPort) {
       oscP5.send(stepMsg, maxLocation); //送信
     }
     else if (gDataCnt == 9) {
-       OscMessage bpmMsg = new OscMessage("/bpm");
-       bpmMsg.add(gBpm);
-       oscP5.send(bpmMsg, maxLocation);
+      println("BPM: " +gBpm);
+      OscMessage bpmMsg = new OscMessage("/bpm");
+      bpmMsg.add(gBpm);
+      oscP5.send(bpmMsg, maxLocation);
     }
     //Send Octave
     else if (gDataCnt == 10) {
-      //println("volume: " + gVolume);
+      //println("Octave: " + gOctave);
       OscMessage octaveMsg = new OscMessage("/octave");
       octaveMsg.add(gOctave);
       oscP5.send(octaveMsg, maxLocation); //送信
     }
     //Send Delay
     else if (gDataCnt == 11) {
-      //println("wave" + gWaveKind);
+      //println("Delay" + gDelay);
       OscMessage delayMsg = new OscMessage("/delay");
       delayMsg.add(gDelay);
       oscP5.send(delayMsg, maxLocation); //送信
     }
     else if (gDataCnt == 12) {
+      //println("OScillator" + gOScillator);
       OscMessage oscillatorMsg = new OscMessage("/oscillo");
       oscillatorMsg.add(gOScillator);
       oscP5.send(oscillatorMsg, maxLocation);

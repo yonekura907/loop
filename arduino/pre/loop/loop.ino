@@ -1,3 +1,5 @@
+// pre version
+
 /* 音数 */
 #define STEPNUM (8)
 
@@ -170,12 +172,6 @@ void loop(){
 //
 //    gLoopCnt = 0;
 //  }
-
-
-  // bpmVal = analogRead(BPMPIN);
-  // Serial.println(bpmVal);
-
-
 
   /* BPMに合わせて待機 */
   delay(waitTime);

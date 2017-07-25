@@ -497,9 +497,9 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm,
 //    Serial.println("");
 
     /* SerialPort経由でProcessing側にデータを送信 */
-//    for (dataCnt = 0; dataCnt < 13; dataCnt++) {
-//      Serial.write(sendData[dataCnt]);
-//    }
+   for (dataCnt = 0; dataCnt < 13; dataCnt++) {
+     Serial.write(sendData[dataCnt]);
+   }
 
     return;
 }

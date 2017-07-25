@@ -1,3 +1,4 @@
+// pre version 
 
 import netP5.*;
 import oscP5.*;
@@ -14,8 +15,7 @@ float diameter;
 OscP5 oscP5;
 NetAddress maxLocation;
 
-//final String serialPortName = "/dev/cu.usbmodem1461";
-final String serialPortName = Serial.list()[3];
+final String serialPortName = "/dev/cu.usbmodem1441";
 
 //final String toMaxIPAddr = "192.168.43.19";
 final String toMaxIPAddr = "127.0.0.1";

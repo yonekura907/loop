@@ -126,7 +126,7 @@ void serialEvent(Serial myPort) {
   try {
     //Send Steps
     if (gDataCnt == 0) {
-      //println("count: " + gStepCnt);
+      println("count: " + gStepCnt);
       OscMessage countMsg = new OscMessage("/counter");
       countMsg.add(gStepCnt);
       oscP5.send(countMsg, maxLocation); //送信
@@ -139,7 +139,7 @@ void serialEvent(Serial myPort) {
       oscP5.send(stepMsg, maxLocation); //送信
     }
     else if (gDataCnt == 9) {
-      println("BPM: " +gBpm);
+      //println("BPM: " +gBpm);
       OscMessage bpmMsg = new OscMessage("/bpm");
       bpmMsg.add(gBpm);
       oscP5.send(bpmMsg, maxLocation);

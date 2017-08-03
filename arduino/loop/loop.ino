@@ -43,10 +43,13 @@ const int  LEDPIN[] = {0, 1, 2, 3, 5, 7, 11, 13};
 /* ループカウント */
 int gLoopCnt = 0;
 
-/* ループカウント */
-int gBpm = 60;
+/* MaxからOSCで送られてくるカウンター変数 */
+int maxLoopCount = 0;
 
-bool  isStart = true;
+/* BPMカウント */
+int gBpm = 60;
+bool isStart = true;
+
 
 
 /*
@@ -73,11 +76,11 @@ void setup( ){
   gLoopCnt = 0;
 
   /* BPMリセット */
-  gBpm = 60;
+  // gBpm = 60;
 
   /* シリアルポートオープン */
-//  Serial.begin(9600);
   Serial.begin(115200);
+
 
   // while(true) {
   //   input = Serial.read();
@@ -116,17 +119,22 @@ void loop(){
 
   /* 同期のメッセージを受けたら強制的にcount0からスタート */
   if (Serial.available() > 0) {
-    input = Serial.read();
-    if (1 == input) {
-      //Start
-      gLoopCnt = 0;
-      isStart = true;
-    }
-    else if (3 == input) {
-      //Stopq
-      isStart = false;
-    }
+
+    /* Processingからシリアル通信で送られるカウントを保存 */
+    maxLoopCount = Serial.read();
+
+
+    // if (1 == gLoopCnt) {
+    //   //Start
+    //   gLoopCnt = 0;
+    //   isStart = true;
+    // }
+    // else if (3 == gLoopCnt) {
+    //   //Stopq
+    //   isStart = false;
+    // }
   }
+  
 
 //  if (false == isStart) {
 //    return;
@@ -136,40 +144,43 @@ void loop(){
   getStepNum(steps, STEPNUM);
 
   /* BPM取得 */
-  bpm = getBPM();
+  // bpm = getBPM();
 
   /* オクターブ取得 */
-  octave = getOctave();
+  // octave = getOctave();
 
   /* ディレイ取得 */
-  delayNum = getDelay();
+  // delayNum = getDelay();
 
   /* オシレーター取得 */
-  ocsillator = getOscillator();
+  // ocsillator = getOscillator();
 
   /* BPM -> msec変換 */
-  waitTime = bpmToMSec(gBpm);
+  // waitTime = bpmToMSec(gBpm);
   
   /* BPM最速の時の待機時間より早い場合は補正する */
-  if (75 > waitTime) {
-    waitTime = 75;
-  }
+  // if (75 > waitTime) {
+  //   waitTime = 75;
+  // }
+
 
   /* データをProcessingに送信 */
   sendData(steps, STEPNUM, octave, delayNum, bpm, ocsillator);
 
   /* LED表示 */
-  showLED(gLoopCnt % STEPNUM);
+  // showLED(gLoopCnt % STEPNUM);
+  showLED(maxLoopCount);
+
 
   /* 4周したらBPM変更 */
-  gLoopCnt++;
+  // gLoopCnt++;
 //  if ((STEPNUM * 4) <= gLoopCnt) {
 //
 //    gLoopCnt = 0;
 //  }
 
   /* BPMに合わせて待機 */
-  delay(waitTime);
+  // delay(waitTime);
 }
 
 
@@ -206,7 +217,7 @@ void turnOffLED() {
  */
 void showLED(int aCount) {
   int sensorCnt = 0;
-  int ledPin = -1;
+  int ledPin = 0;
 
   /* 必要なものだけ点灯 */
   ledPin = LEDPIN[aCount];

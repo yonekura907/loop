@@ -17,10 +17,10 @@
  * A11:デジタルピン12
  */
 /* タイミングInput用PIN */
-const int STEPPIN[] = {0, 1, 2, 3, 4, 5, 6, 7};
+const int STEPPIN[] = {0, 1, 2, 8, 4, 5, 6, 7};
 
 /* オシレーターInput用PIN */
-const int OSCILLATORPIN = 8;
+// const int OSCILLATORPIN = 8;
 
 /* 音階Input用PIN */
 const int OCTAVEPIN = 9;
@@ -217,11 +217,11 @@ void turnOffLED() {
  */
 void showLED(int aCount) {
   int sensorCnt = 0;
-  int ledPin = 0;
+  // int ledPin = 0;
 
   /* 必要なものだけ点灯 */
-  ledPin = LEDPIN[aCount];
-  digitalWrite(ledPin, HIGH);
+  // ledPin = LEDPIN[aCount];
+  digitalWrite(LEDPIN[aCount], HIGH);
 }
 
 
@@ -380,14 +380,14 @@ int getDelay() {
  * --------------------------------------------
  */
 int getOscillator() {
-  int oscillo = 0;
-  int value = 0;
+  // int oscillo = 0;
+  // int value = 0;
 
-  /* センサー値取得 */
-  value = analogRead(OSCILLATORPIN);
-  oscillo = roundAnalogToDigital(value);
+  // /* センサー値取得 */
+  // value = analogRead(OSCILLATORPIN);
+  // oscillo = roundAnalogToDigital(value);
 
-  return oscillo;
+  // return oscillo;
 }
 
 /*

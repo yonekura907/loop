@@ -14,7 +14,7 @@ OscP5 oscP5;
 NetAddress maxLocation;
 
 // ここを自分のシリアルポートに変更する
-final String serialPortName = "/dev/cu.usbmodem14411";
+final String serialPortName = "/dev/cu.usbmodem1461";
 
 
 //final String toMaxIPAddr = "192.168.43.19";

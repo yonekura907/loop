@@ -14,7 +14,7 @@ OscP5 oscP5;
 NetAddress maxLocation;
 
 // ここを自分のシリアルポートに変更する
-final String serialPortName = "/dev/cu.usbmodem1461";
+final String serialPortName = "/dev/cu.usbmodem1451";
 
 
 //final String toMaxIPAddr = "192.168.43.19";
@@ -77,19 +77,19 @@ void draw(){
 
 public void playStep(int aCount) {
 
-  println("aCount: "+aCount);
+  //println("aCount: "+aCount);
   myPort.write(aCount);
   // OscMessage stepMsg = new OscMessage("/steps");
-  
+
 //   if (gTempo == 1) {
 //     if (aCount % 2 == 0) {
-//       stepMsg.add(aCount/2);   
+//       stepMsg.add(aCount/2);
 //       oscP5.send(stepMsg, maxLocation); //送信
 //     }
 //   }
 //   else if (gTempo == 2) {
 //     if (aCount >= 8) {
-//      aCount = aCount - 8; 
+//      aCount = aCount - 8;
 //     }
 //     stepMsg.add(aCount);
 //     oscP5.send(stepMsg, maxLocation); //送信
@@ -98,11 +98,10 @@ public void playStep(int aCount) {
 
 //Serial Receive Event
 void serialEvent(Serial myPort) {
-int resvValue = 0;
+    int resvValue = 0;
+    resvValue = myPort.read();
 
-  resvValue = myPort.read();
 
-  // println("resvValue: "+resvValue);
 
   if (gDataCnt == 0) {
     // gStepCnt = resvValue;
@@ -144,6 +143,7 @@ int resvValue = 0;
       OscMessage stepMsg = new OscMessage("/steps");
       stepMsg.add(gSteps);
       oscP5.send(stepMsg, maxLocation); //送信
+      println("stepMsg: " + stepMsg);
     }
     else if (gDataCnt == 9) {
       // println("BPM: " +gBpm);
@@ -177,10 +177,13 @@ int resvValue = 0;
   }
 
   gDataCnt++;
-  
+
   if (13 == gDataCnt) {
     gDataCnt = 0;
   }
+
+  println(gSteps);
+  println("resvValue: "+resvValue);
 }
 
 //void testCode() {

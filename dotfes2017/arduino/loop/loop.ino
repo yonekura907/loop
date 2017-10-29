@@ -1,5 +1,5 @@
 /* 音数 */
-#define STEPNUM (8)
+#define STEPNUM (16)
 
 /* BPM計算の基準音符 */
 /* 1:全音符, 2:二分音符, 4:四分音符, 8:八分音符, 16:十六分音符 */
@@ -17,7 +17,8 @@
  * A11:デジタルピン12
  */
 /* タイミングInput用PIN */
-const int STEPPIN[] = {0, 1, 2, 3, 4, 5, 6, 7};
+const int STEPPIN[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 ,9 ,10 ,11 ,12, 13, 14, 15};
+
 
 /* オシレーターInput用PIN */
 // const int OSCILLATORPIN = 8;
@@ -38,7 +39,7 @@ const int BPMPIN = 11;
  * 使用予定なので、使用しない
  */
 /* LED Output用PIN番号 */
-const int  LEDPIN[] = {0, 1, 2, 3, 5, 7, 11, 13};
+const int  LEDPIN[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
 /* ループカウント */
 int gLoopCnt = 0;
@@ -458,7 +459,7 @@ int roundAnalogToDigital(int value) {
  */
 void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm, int bpm, int ocsillator) {
     /* 送信データ:0:カウンター、1~8:音階、9:オクターブ、10:ビブラート, 11:テンポ */
-    int sendData[13];
+    int sendData[21];
     int sendSize = 0;
     int dataCnt = 0;
     int index = 0;
@@ -469,7 +470,7 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm,
     }
 
     /* 送信データ初期化 */
-    memset(sendData, 0, 13 * sizeof(int));
+    memset(sendData, 0, 21 * sizeof(int));
 
     /* 送信データにカウンターを設定 */
     sendData[0] = gLoopCnt % STEPNUM;
@@ -507,10 +508,13 @@ void sendData (int* pSensorValue, int sensorValueSize, int octave, int delayNUm,
 //    }
 //    Serial.println("");
 
-    /* SerialPort経由でProcessing側にデータを送信 */
-   for (dataCnt = 0; dataCnt < 13; dataCnt++) {
+   /* SerialPort経由でProcessing側にデータを送信 */
+   for (dataCnt = 0; dataCnt < 21; dataCnt++) {
      Serial.write(sendData[dataCnt]);
    }
+   
+   /* OF側できれいに受け取るために遅らせる */
+   delay(10);
 
-    return;
+   return;
 }

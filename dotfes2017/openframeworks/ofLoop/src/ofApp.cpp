@@ -4,39 +4,33 @@
 void ofApp::setup(){
     ofSetVerticalSync(true);
     ofSetFrameRate(60);
-    Serial.setup("/dev/cu.usbmodem1421",115200);
     
-    OscReceiver.setup(PORT);
-    OscSender.setup(HOST, PORT);
+    // arduino (serial)
+    StepsSerial.setup("/dev/cu.usbmodem1421",115200);
+    KnocsSerial.setup("/dev/cu.usbmodem1411",115200);
+    
+    // max (OSC)
+    OscReceiver.setup(RECIEVEPORT);
+    OscSender.setup(HOST, SENDPORT);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-    // arduinoでwriteされるbyteをセットする
-    setSerialBytes();
+    setStepsSerial();
+    setKnobsSerial();
+    sendOscSteps();
+    sendOscKonbs();
+    receiveOscBpmAndSendSerialLed();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    // テスト表示 削除予定
-    // arduinoのSerial.writeと個数を合わさないとおかしくなるよ！
-    for (int index = STEP_FIRST_NUM; index <= SENDED_NUM; index++) {
-        printf("%s \n", std::to_string(bytes[index]).c_str());
-        string stepStr = ofToString(index) + " : " + ofToString(bytes[index]);
-        ofDrawBitmapString(stepStr, 50, 30 * index + 10);
-    }
-    
-    drawOSC();
     drawSample();
-    
-//    ofxOscMessage m;
-//    m.addIntArg(1);
-//    OscSender.sendMessage(m);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    
 }
 
 //--------------------------------------------------------------
@@ -89,73 +83,105 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
-
-void ofApp::setSerialBytes(){
-    // serial通信、byteの取得
-    if (Serial.available() == SENDED_NUM) {
-        for (int index = 0; index < SENDED_NUM; index++) {
-            bytes[index] = Serial.readByte();
+//--------------------------------------------------------------
+// get steps value from arduino (MEGA)
+//--------------------------------------------------------------
+void ofApp::setStepsSerial(){
+    if (StepsSerial.available() == STEP_SENDED_NUM) {
+        for (int index = 0; index < STEP_SENDED_NUM; index++) {
+            steps[index] = StepsSerial.readByte();
         }
     }
-    
-    // serialの初期化
-    Serial.flush();
+    StepsSerial.flush();
 }
 
-int ofApp::getPutStepCount(){
-    int stepCount = 0;
-    for (int index = STEP_FIRST_NUM; index <= SENDED_NUM; index++) {
-        if (bytes[index] > 0) stepCount++;
+//--------------------------------------------------------------
+// get knobs value from arduino (LEONALDO)
+//--------------------------------------------------------------
+void ofApp::setKnobsSerial(){
+    if (KnocsSerial.available() > 0) {
+        if (KnocsSerial.available() == KNOB_NUM) {
+            for (int index = 0; index < KNOB_NUM; index++) {
+                knobs[index] = KnocsSerial.readByte();
+            }
+        }
     }
-    return stepCount;
+    KnocsSerial.flush();
 }
 
-void ofApp::drawOSC(){
+//--------------------------------------------------------------
+void ofApp::receiveOscBpmAndSendSerialLed(){
     
-    string msg = "";
-    msg += "FPS: " + ofToString( ofGetFrameRate() ) + "\n";
-    msg += "receiver: " + ofToString( OscReceiver.hasWaitingMessages() ) + "\n";
+//    string msg = "";
+//    msg += "FPS: " + ofToString( ofGetFrameRate() ) + "\n";
+//    msg += "receiver: " + ofToString( OscReceiver.hasWaitingMessages() ) + "\n";
     
     int index = 0;
     while(OscReceiver.hasWaitingMessages()) {
         
+        // Read Osc(max)
         ofxOscMessage m;
         OscReceiver.getNextMessage(&m);
         string value = m.getArgAsString(index);
+        
 //        msg += "getAddress: " + m.getAddress() + "\n";
 //        msg += "getArgAsString " + ofToString(index) + ": " + value + "\n";
         
-        // arduino MEGAが場合の解決策
-        // いきなりランプは点灯できない
+        // Send serial(Arduion)
+        // if you write byte from start, you cant send serial to arduino MEGA(only MEGA).
         if (millis() > 2000) {
             unsigned char myByte =std::stoi(value);
-            bool byteWasWritten = Serial.writeByte(myByte);
-            if (!byteWasWritten) printf("もう一度arduinoをつなぎ直してください \n");
+            bool byteWasWritten = StepsSerial.writeByte(myByte);
+            if (!byteWasWritten) printf("please reconnect arduino again. \n");
         }
         
+//        if( index == 0 ){
+//            getFFT = ofMap( ofToFloat( m.getArgAsString(index) ), -90, 0, 0, 1 );
+//        }
         
-        if( index == 0 ){
-            getFFT = ofMap( ofToFloat( m.getArgAsString(index) ), -90, 0, 0, 1 );
-        }
-        
-        index++;
+//        index++;
     }
     
 //    drawVisual();
     
-    msg += "FFT: " + ofToString( getFFT ) + "\n";
-    ofSetColor( 0, 0, 0, 255 );
-    ofDrawBitmapString( msg, 30, 30 );
+//    msg += "FFT: " + ofToString( getFFT ) + "\n";
+//    ofSetColor( 0, 0, 0, 255 );
+//    ofDrawBitmapString( msg, 30, 30 );
     
 }
 
-void ofApp::drawVisual(){
-    
-    float ww = ofGetWidth();
-    float wh = ofGetHeight();
-    
-    ofDrawCircle( ww * 0.5, wh * 0.5, 100 * getFFT );
-    
+//void ofApp::drawVisual(){
+//    
+//    float ww = ofGetWidth();
+//    float wh = ofGetHeight();
+//    
+//    ofDrawCircle( ww * 0.5, wh * 0.5, 100 * getFFT );
+//    
+//}
+
+//--------------------------------------------------------------
+void ofApp::sendOscSteps(){
+    ofxOscMessage m;
+    m.setAddress("/steps");
+    for (int index = STEP_FIRST_NUM; index <= STEP_SENDED_NUM; index++) {
+        m.addIntArg(steps[index]);
+        
+        // debug
+        // printf("%s \n", std::to_string(bytes[index]).c_str());
+        // string stepStr = ofToString(index) + " : " + ofToString(bytes[index]);
+        // ofDrawBitmapString(stepStr, 50, 30 * index + 10);
+    }
+    OscSender.sendMessage(m);
+}
+
+//--------------------------------------------------------------
+void ofApp::sendOscKonbs(){
+    ofxOscMessage m;
+    m.setAddress("/knobs");
+    for (int index = 0; index < KNOB_NUM; index++) {
+        m.addIntArg(steps[index]);
+    }
+    OscSender.sendMessage(m);
 }
 
 //--------------------------------------------------------------
@@ -167,9 +193,6 @@ void ofApp::drawSample(){
     float cont = 0;
     float r;
     
-    float shake = getPutStepCount() * 10;
-    float sphereRadius = getPutStepCount() * 3;
-    
     background(0);
     translate(300,300);
     rotate(radians(rot));
@@ -179,13 +202,13 @@ void ofApp::drawSample(){
     for (float i=0; i<500; i+=5) {
         
         //座標
-        circle = 200 + shake*sin(millis()*freq*i);
+        circle = 200 + 50*sin(millis()*freq*i);
         
         //色
         col = map(circle, 150, 250, 255, 60);
         
         //半径
-        r = map(circle, 150, 250, sphereRadius, 2);
+        r = map(circle, 150, 250, 10, 2);
         
         //   赤　　緑　　青
         fill(col, 255, 255);

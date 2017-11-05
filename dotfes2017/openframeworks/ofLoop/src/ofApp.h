@@ -1,6 +1,10 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxOsc.h"
+
+#define HOST "127.0.0.1"
+#define PORT 7100
 
 class ofApp : public ofBaseApp{
 
@@ -26,9 +30,36 @@ class ofApp : public ofBaseApp{
         static const int STEP_NUM = 16;
         static const int SENDED_NUM = 21;
     
+        int getPutStepCount();
+    
         ofSerial Serial;
         int bytes[SENDED_NUM];
     
         /* arduinoでwriteされるbyteをセット */
         void setSerialBytes();
+    
+        /* OSC */
+        void drawVisual();
+        void drawOSC();
+        ofxOscReceiver OscReceiver;
+        ofxOscSender OscSender;
+        float getFFT = 0;
+    
+        /* visual */
+        void drawSample();
+    
+        /* processing method */
+        void background(int rgb);
+        void background(int r, int g, int b);
+        void translate(float x, float y);
+        void rotate(float degrees);
+        float radians(float degree);
+        float millis();
+        float startTimer;
+        float map(float v, float sx, float sn, float dx, float dn);
+        void fill(float r, float g, float b);
+        void ellipse(float x, float y, float width, float height);
+        int width;
+        int height;
+
 };

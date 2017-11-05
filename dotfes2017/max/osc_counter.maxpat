@@ -423,7 +423,7 @@
 					"outlettype" : [ "int", "", "", "int" ],
 					"patching_rect" : [ 44.0, 346.0, 81.0, 22.0 ],
 					"style" : "",
-					"text" : "counter 1 0 7"
+					"text" : "counter 1 0 15"
 				}
 
 			}

@@ -3,6 +3,17 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "ofApp::setSerialBytes():ofApp.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "KnocSerial.available() ">
+            </PersistentString>
+            <PersistentString
+               value = "KnocSerial">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "ofApp::getPutStepCount():ofApp.cpp">
          <PersistentStrings>
             <PersistentString

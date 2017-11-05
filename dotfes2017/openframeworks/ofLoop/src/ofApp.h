@@ -4,16 +4,34 @@
 #include "ofxOsc.h"
 
 #define HOST "127.0.0.1"
-#define PORT 7100
+#define RECIEVEPORT 7100
+#define SENDPORT 7400
 
 class ofApp : public ofBaseApp{
 
-	public:
-		void setup();
-		void update();
-		void draw();
-
-		void keyPressed(int key);
+    // useble variable
+    // arduino
+    //   wood ball 1-16 (by step)
+    //   wood ball 0-8 (by color)
+    //   knob 1-6 (by order)(!!now only 3)
+    //   knob 0-8 (by value)
+    // knobs type
+    //   bpm
+    //   oscillator
+    //   delay
+    //   kick
+    //   rim
+    //   octave
+    // from max
+    //   bpm
+    //   fft
+    
+public:
+    void setup();
+    void update();
+    void draw();
+    
+    void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
 		void mouseDragged(int x, int y, int button);
@@ -25,27 +43,28 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
-        /* ステップ数 */
+        /* Serial */
         static const int STEP_FIRST_NUM = 1;
         static const int STEP_NUM = 16;
-        static const int SENDED_NUM = 21;
-    
-        int getPutStepCount();
-    
-        ofSerial Serial;
-        int bytes[SENDED_NUM];
-    
-        /* arduinoでwriteされるbyteをセット */
-        void setSerialBytes();
-    
+        static const int STEP_SENDED_NUM = 21;
+        ofSerial KnocsSerial;
+        int steps[STEP_SENDED_NUM];
+        static const int KNOB_NUM = 3;
+        ofSerial StepsSerial;
+        int knobs[KNOB_NUM];
+
         /* OSC */
-        void drawVisual();
-        void drawOSC();
         ofxOscReceiver OscReceiver;
         ofxOscSender OscSender;
         float getFFT = 0;
-    
-        /* visual */
+        void setStepsSerial();
+        void setKnobsSerial();
+        //        void drawVisual();
+        void receiveOscBpmAndSendSerialLed();
+        void sendOscSteps();
+        void sendOscKonbs();
+
+        /* view visual */
         void drawSample();
     
         /* processing method */
@@ -61,5 +80,4 @@ class ofApp : public ofBaseApp{
         void ellipse(float x, float y, float width, float height);
         int width;
         int height;
-
 };

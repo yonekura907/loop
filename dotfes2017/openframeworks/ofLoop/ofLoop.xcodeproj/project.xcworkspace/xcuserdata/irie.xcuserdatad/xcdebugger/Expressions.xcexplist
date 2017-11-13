@@ -3,21 +3,40 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "ofApp::setSerialBytes():ofApp.cpp">
+         contextName = "ofApp::receiveOscBpmAndSendSerialLed():ofApp.cpp">
          <PersistentStrings>
             <PersistentString
-               value = "KnocSerial.available() ">
+               value = "steps[2]">
             </PersistentString>
             <PersistentString
-               value = "KnocSerial">
+               value = "m.getAddress()">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "ofApp::getPutStepCount():ofApp.cpp">
+         contextName = "ofApp::sendOscKonbs():ofApp.cpp">
          <PersistentStrings>
             <PersistentString
-               value = "sizeof(bytes)">
+               value = "knobs[index++]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ofApp::drawCircleWave():ofApp.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "test">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ofApp::updateStepsSerialDebug():ofApp.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "stepsSlider[index]">
+            </PersistentString>
+            <PersistentString
+               value = "steps[1]">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -25,7 +44,29 @@
          contextName = "ofApp::drawSample():ofApp.cpp">
          <PersistentStrings>
             <PersistentString
-               value = "getPutStepCount()">
+               value = "getSameStepNum(i)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ofApp::sendOscSteps():ofApp.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "index">
+            </PersistentString>
+            <PersistentString
+               value = "steps[index]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ofApp::drawParticleSphere():ofApp.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "sqrtf(100.0)">
+            </PersistentString>
+            <PersistentString
+               value = "sqrt(test)">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

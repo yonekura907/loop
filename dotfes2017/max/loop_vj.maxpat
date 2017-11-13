@@ -9,7 +9,7 @@
 			"modernui" : 1
 		}
 ,
-		"rect" : [ 96.0, 93.0, 1160.0, 913.0 ],
+		"rect" : [ 54.0, 93.0, 1494.0, 882.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -102,7 +102,6 @@
 					"outlettype" : [ "signal", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 1886.0, 654.0, 22.5, 99.0 ],
-					"presentation_rect" : [ 1886.0, 654.0, 0.0, 0.0 ],
 					"style" : ""
 				}
 
@@ -364,7 +363,6 @@
 					}
 ,
 					"patching_rect" : [ 1886.0, 589.5, 60.0, 22.0 ],
-					"presentation_rect" : [ 1886.0, 589.5, 0.0, 0.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -387,7 +385,6 @@
 					"outlettype" : [ "signal", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 1803.0, 654.0, 22.5, 99.0 ],
-					"presentation_rect" : [ 1803.0, 655.0, 0.0, 0.0 ],
 					"style" : ""
 				}
 
@@ -446,7 +443,6 @@
 									"outlettype" : [ "float", "", "", "bang" ],
 									"parameter_enable" : 0,
 									"patching_rect" : [ 475.0, 179.0, 203.0, 99.5 ],
-									"presentation_rect" : [ 474.0, 179.0, 0.0, 0.0 ],
 									"style" : ""
 								}
 
@@ -677,7 +673,6 @@
 					}
 ,
 					"patching_rect" : [ 1803.0, 589.5, 60.0, 22.0 ],
-					"presentation_rect" : [ 1803.0, 590.5, 0.0, 0.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -700,7 +695,6 @@
 					"outlettype" : [ "signal", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 1689.0, 654.0, 22.5, 99.0 ],
-					"presentation_rect" : [ 1690.0, 657.0, 0.0, 0.0 ],
 					"style" : ""
 				}
 
@@ -804,7 +798,7 @@
 									"outlettype" : [ "int" ],
 									"patching_rect" : [ 51.0, 220.0, 29.5, 22.0 ],
 									"style" : "",
-									"text" : "+ 0"
+									"text" : "- 5"
 								}
 
 							}
@@ -962,7 +956,6 @@
 					}
 ,
 					"patching_rect" : [ 1689.0, 589.5, 85.0, 22.0 ],
-					"presentation_rect" : [ 1690.0, 592.5, 0.0, 0.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -1010,7 +1003,6 @@
 					"outlettype" : [ "signal", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 1580.0, 654.0, 22.5, 99.0 ],
-					"presentation_rect" : [ 1582.916748, 654.0, 0.0, 0.0 ],
 					"style" : ""
 				}
 
@@ -1112,9 +1104,9 @@
 									"numinlets" : 2,
 									"numoutlets" : 1,
 									"outlettype" : [ "int" ],
-									"patching_rect" : [ 51.0, 220.0, 32.0, 22.0 ],
+									"patching_rect" : [ 51.0, 220.0, 31.0, 22.0 ],
 									"style" : "",
-									"text" : "+ -7"
+									"text" : "- 12"
 								}
 
 							}
@@ -1272,7 +1264,6 @@
 					}
 ,
 					"patching_rect" : [ 1580.0, 589.5, 85.0, 22.0 ],
-					"presentation_rect" : [ 1582.916748, 589.5, 0.0, 0.0 ],
 					"saved_object_attributes" : 					{
 						"description" : "",
 						"digest" : "",
@@ -3802,7 +3793,7 @@
 					"outlettype" : [ "int", "", "", "int" ],
 					"patching_rect" : [ 44.0, 663.0, 87.0, 22.0 ],
 					"style" : "",
-					"text" : "counter 2 0 15"
+					"text" : "counter 0 0 15"
 				}
 
 			}
@@ -3988,7 +3979,7 @@
 						"subpatcher_template" : "",
 						"boxes" : [ 							{
 								"box" : 								{
-									"addpoints" : [ 0.0, 0.0, 0, 1.572327, 1.0, 0, 24.590164, 0.521127, 0, 57.377048, 0.239437, 0, 159.83606, 0.084507, 0, 266.393433, 0.253521, 0, 360.655731, 0.577465, 0, 418.032776, 1.0, 0, 526.595764, 0.933333, 0, 643.617004, 0.68, 0, 712.76593, 0.32, 0, 835.106384, 0.08, 0, 1000.0, 0.0, 0 ],
+									"addpoints" : [ 0.0, 0.0, 0, 57.591621, 0.355705, 0, 57.591621, 0.744966, 0, 115.183243, 0.409396, 0, 204.188477, 0.114094, 0, 287.95813, 0.315436, 0, 418.848175, 0.436242, 0, 450.26178, 0.90604, 2, 518.324585, 0.449664, 2, 628.272278, 0.369128, 0, 680.628296, 0.127517, 2, 835.106384, 0.08, 0, 1000.0, 0.0, 0 ],
 									"id" : "obj-36",
 									"maxclass" : "function",
 									"numinlets" : 1,
@@ -7367,8 +7358,8 @@
 			}
  ],
 		"parameters" : 		{
-			"obj-55" : [ "Delay", "Delay", 0 ],
-			"obj-54" : [ "Synth", "Synth", 0 ]
+			"obj-54" : [ "Synth", "Synth", 0 ],
+			"obj-55" : [ "Delay", "Delay", 0 ]
 		}
 ,
 		"dependency_cache" : [  ],

@@ -1,5 +1,5 @@
 
-#define KNOBNUM (2)
+#define KNOBNUM (5)
 int knobLevels[KNOBNUM];
 
 void setup(){
@@ -15,6 +15,7 @@ void sendKnobLevels() {
   for (int index = 0; index <= KNOBNUM; index++) {
     setKnobLevel(index);
     Serial.write(knobLevels[index]);
+//    Serial.println(knobLevels[index]);
   }
 
   /* OF側できれいに受け取るために遅らせる */
@@ -24,24 +25,18 @@ void sendKnobLevels() {
 /* knobs 500-1023 */
 int setKnobLevel(int knobPinNum) {
   int value = analogRead(knobPinNum);
-  if (value <= 518) {
-    knobLevels[knobPinNum] = 0;
-  } else if ((530 < value) && (value <= 605)) {
+  if (value <= 558) {
     knobLevels[knobPinNum] = 1;
-  } else if ((620 < value) && (value <= 692)) {
+  } else if ((562 < value) && (value <= 692)) {
     knobLevels[knobPinNum] = 2;
-  } else if ((750 < value) && (value <= 825)) {
+  } else if ((696 < value) && (value <= 892)) {
     knobLevels[knobPinNum] = 3;
-  } else if ((830 < value) && (value <= 905)) {
+  } else if ((896 < value) && (value <= 933)) {
     knobLevels[knobPinNum] = 4;
-  } else if ((910 < value) && (value <= 935)) {
+  } else if ((937 < value) && (value <= 973)) {
     knobLevels[knobPinNum] = 5;
-  } else if ((940 < value) && (value <= 965)) {
+  } else if (977 < value) {
     knobLevels[knobPinNum] = 6;
-  } else if ((970 < value) && (value <= 995)) {
-    knobLevels[knobPinNum] = 7;
-  } else if (1001 < value) {
-    knobLevels[knobPinNum] = 8;
   }
 }
 

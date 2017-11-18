@@ -49,6 +49,14 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "ofApp::setStepsSerial():ofApp.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "StepsSerial.available()">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "ofApp::sendOscSteps():ofApp.cpp">
          <PersistentStrings>
             <PersistentString

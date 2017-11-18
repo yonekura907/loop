@@ -44,7 +44,11 @@ public:
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-		
+    
+        /* debug mode */
+        static const bool IS_USE_GUI = true;//not arduino
+        ofColor BACKGROUNDCOLLOR = (0);
+    
         /* Serial */
         static const int STEP_FIRST_NUM = 1;
         static const int STEP_NUM = 16;
@@ -60,20 +64,17 @@ public:
         int getKick();
         int getRim();
         int getOctave();
+        int roundCount = 0;
 
         /* OSC */
         int nowstep = 0;
-        float reaction = 0;
         ofxOscReceiver OscReceiver;
         ofxOscSender OscSender;
         float getFFT = 0;
         void setStepsSerial();
         void setKnobsSerial();
-        void setStepsSerialDebug();
-        void setKnobsSerialDebug();
         void updateStepsSerialDebug();
         void updateKnobsSerialDebug();
-        // void drawVisual();
         void receiveOscBpmAndSendSerialLed();
         void sendOscSteps();
         void sendOscKonbs();
@@ -83,6 +84,7 @@ public:
         float drawStartTimer = 0;
         /* SinCos */
         void drawSinCos();
+        float drawSinCos_rot;
         /* CircleWave */
         void drawCircleWave();
         float getBpmSpeed();
@@ -116,6 +118,8 @@ public:
         float drawCircleTree_r;
         /* view visual common function */
         int getSameStepNum(int value);
+        /* debug */
+        void drawKnobValue();
     
         /* box2d */
         ofxBox2d box2d;
@@ -153,15 +157,14 @@ public:
         /* oscillator form */
         void drawOscillatorForm(float x, float y, float width, float height);
     
+        /* octobe reverce form */
+        int getReverceOctave();
+    
         /* wooden ball color */
         ofColor getWoodenBallColor(int index);
 
-        /*  background color */
-        ofColor getBackgroundColor();
-        float backgroundStartTimer = 0;
-
-        /*  delay reaction */
-        void setDelayReaction();
+        /* delay reaction */
+        // void setDelayReaction();
     
         /* GUI */
         ofxPanel gui;

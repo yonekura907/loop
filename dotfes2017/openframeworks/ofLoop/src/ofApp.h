@@ -2,7 +2,6 @@
 
 #include "ofMain.h"
 #include "ofxOsc.h"
-#include "ofxBox2d.h"
 #include "ofxGui.h"
 
 #define HOST "127.0.0.1"
@@ -46,7 +45,7 @@ public:
 		void gotMessage(ofMessage msg);
     
         /* debug mode */
-        static const bool IS_USE_GUI = true;//not arduino
+        static const bool IS_USE_GUI = false;//not arduino
         ofColor BACKGROUNDCOLLOR = (0);
     
         /* Serial */
@@ -93,19 +92,6 @@ public:
         float drawCircleWave_theta = 0;
         float drawCircleWave_r = 15;
         float drawCircleWave_h = 100;
-        /* ParticleSphere */
-        void setupParticleSphere();
-        void drawParticleSphere();
-        float drawParticleSphere_circleSize = 400;
-        float drawParticleSphere_radius = drawParticleSphere_circleSize/2;
-        int drawParticleSphere_period = 5; //speed
-        float drawParticleSphere_x = 0;
-        float drawParticleSphere_particleY;
-        double drawParticleSphere_amplitude;
-        float drawParticleSphere_sineEl;
-        float drawParticleSphere_r = 0;
-        int drawParticleSphere_randomPart[100];
-        int drawParticleSphere_partSize[100];
         /* CircleTree */
         void drawCircleTree();
         float drawCircleTree_A = 120;
@@ -120,14 +106,6 @@ public:
         int getSameStepNum(int value);
         /* debug */
         void drawKnobValue();
-    
-        /* box2d */
-        ofxBox2d box2d;
-        vector <ofPtr<ofxBox2dCircle>> box2dCircles;
-        vector <ofPtr<ofxBox2dRect>> box2dRects;
-        vector <ofColor> box2dCirclesColor;
-        void addBox2dCircles(int step, int stepValue);
-        void drawBox2dCircles();
     
         /* processing method */
         int windowWidth;
@@ -162,9 +140,6 @@ public:
     
         /* wooden ball color */
         ofColor getWoodenBallColor(int index);
-
-        /* delay reaction */
-        // void setDelayReaction();
     
         /* GUI */
         ofxPanel gui;

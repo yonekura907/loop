@@ -1,0 +1,3 @@
+projectGeneratorからofxOSCとofxGUIをimportしてプロジェクトを作成します。
+srcの中身を置き換えれば起動します。
+IS_USE_GUIをtrueにした場合、arduinoなしでも動作確認できます（maxは必須）。

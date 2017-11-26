@@ -18,20 +18,13 @@ void ofApp::setup(){
         }
     } else {
         // arduino (serial)
-        StepsSerial.setup("/dev/cu.usbmodem1421",115200);
-        KnocsSerial.setup("/dev/cu.usbmodem1411",115200);
+        StepsSerial.setup("/dev/cu.usbmodem1411",115200);
+        KnocsSerial.setup("/dev/cu.usbmodem1421",115200);
     }
 
     // max (OSC)
     OscReceiver.setup(RECIEVEPORT);
     OscSender.setup(HOST, SENDPORT);
-    
-    // BOX2D
-    // box2d.init();
-    // box2d.setGravity(0, 10);
-    // box2d.createBounds();
-    // box2d.setFPS(30.0);
-    // box2d.registerGrabbing();
 }
 
 //--------------------------------------------------------------
@@ -53,9 +46,6 @@ void ofApp::update(){
     // OSC
     sendOscSteps();
     sendOscKonbs();
-    
-    // BOX2D
-    // box2d.update();
 }
 
 //--------------------------------------------------------------
@@ -71,9 +61,6 @@ void ofApp::draw(){
         // GUI
         gui.draw();
     }
-    
-    // delay reaction.
-    // setDelayReaction();
     
     // check knob value from arduino(serial)
     // drawKnobValue();
@@ -91,10 +78,6 @@ void ofApp::drawVisualizer(){
         drawCircleWave();
         roundCount = 0;
     }
-    
-    // these method is failed...
-    // drawParticleSphere();
-    // drawBox2dCircles();
 }
 
 //--------------------------------------------------------------
@@ -108,26 +91,6 @@ void ofApp::drawKnobValue(){
         msg += "octave: " + ofToString( knobs[5] ) + "\n";
         ofDrawBitmapString( msg, 30, 30 );
 }
-
-//--------------------------------------------------------------
-//void ofApp::setDelayReaction(){
-//    if (getDelay() == 1) {
-//        reaction -= 1.6;
-//    } else if (getDelay() == 2) {
-//        reaction -= 1.4;
-//    } else if (getDelay() == 3) {
-//        reaction -= 1.2;
-//    } else if (getDelay() == 4) {
-//        reaction -= 1;
-//    } else if (getDelay() == 5) {
-//        reaction -= 0.8;
-//    } else if (getDelay() == 6) {
-//        reaction -= 0.4;
-//    }
-//    if (reaction < 0) {
-//        reaction = 0;
-//    }
-//}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -259,8 +222,6 @@ void ofApp::receiveOscBpmAndSendSerialLed(){
     
     // string msg = "";
     // msg += "FPS: " + ofToString( ofGetFrameRate() ) + "\n";
-    // msg += "receiver: " + ofToString( OscReceiver.hasWaitingMessages() ) + "\n";
-    // msg += "step: " + ofToString( stepsSlider[1].getParameter() ) + "\n";
     
     int index = 0;
     while(OscReceiver.hasWaitingMessages()) {
@@ -273,50 +234,22 @@ void ofApp::receiveOscBpmAndSendSerialLed(){
         
         if (m.getAddress() == "/count"){
             if (nowstep == 0) {
-                // addBox2dCircles(nowstep, steps[nowstep]);
-                // reaction = 30;
                 roundCount++;
             }
-        }
-        
-        // msg += "getAddress: " + m.getAddress() + "\n";
-        // msg += "getArgAsString " + ofToString(index) + ": " + value + "\n";
-        
-        // Send serial(Arduion)
-        // if you write byte from start, you cant send serial to arduino MEGA(only MEGA).
-        if (!IS_USE_GUI) {
-            if (millis() > 2000) {
-                unsigned char myByte =std::stoi(value);
-                bool byteWasWritten = StepsSerial.writeByte(myByte);
-                if (!byteWasWritten) printf("please reconnect arduino again. \n");
+            
+            if (!IS_USE_GUI) {
+                // Send serial(Arduion)
+                // if you write byte from start, you cant send serial to arduino MEGA(only MEGA).
+                if (millis() > 2000) {
+                    unsigned char myByte =std::stoi(value);
+                    bool byteWasWritten = StepsSerial.writeByte(myByte);
+                    if (!byteWasWritten) printf("please reconnect arduino again. \n");
+                }
             }
         }
         
-
-        
-        // recieve
-//        if (m.getAddress() == "/count"){
-//            if (steps[nowstep] != 0) {
-//                // addBox2dCircles(nowstep, steps[nowstep]);
-//                // reaction = 30;
-//            }
-//        }
-
-        // if (index == 0 && m.getAddress() == "/fft"){
-            // getFFT = ofMap( ofToFloat( m.getArgAsString(index) ), -90, 0, 0, 1 );
-            // reaction = 10 * getFFT;
-        // }
-        // if( index == 0 ){
-            // getFFT = ofMap( ofToFloat( m.getArgAsString(index) ), -90, 0, 0, 1 );
-        // }
-        
-        // index++;
+        // ofDrawBitmapString( msg, 30, 30 );
     }
-    
-    // msg += "FFT: " + ofToString( getFFT ) + "\n";
-    // ofSetColor( 0, 0, 0, 255 );
-    // ofDrawBitmapString( msg, 30, 30 );
-    
 }
 
 //--------------------------------------------------------------
@@ -462,7 +395,7 @@ void ofApp::drawCircleTree(){
     ofPushMatrix();
     
     translate(windowWidth/2,0);
-    for (int  y = drawCircleTree_radius+100; y <=windowHeight-150; y += drawCircleTree_diameter*1.3) {
+    for (int  y = drawCircleTree_radius+20; y <=windowHeight-20; y += drawCircleTree_diameter*1.3) {
         if (steps[getSameStepNum(y)] == 0) {
             continue;
         }
@@ -474,7 +407,7 @@ void ofApp::drawCircleTree(){
         float r =b*w/7;
         fill(getWoodenBallColor(steps[getSameStepNum(y)]));
         
-        float delaySize = getDelay() * 3;
+        float delaySize = getDelay() * 4 + 2;
         
         drawOscillatorForm(w*b, y,r+delaySize,r+delaySize);
         drawOscillatorForm(-w*b, y,r+delaySize,r+delaySize);
@@ -482,52 +415,6 @@ void ofApp::drawCircleTree(){
     drawCircleTree_time += getBpm() * 0.1 + getOctave() * 0.4 + 0.2;
     
     ofPopMatrix();
-}
-
-//--------------------------------------------------------------
-void ofApp::setupParticleSphere(){
-    for (int i = 0; i < 100; i++) {
-        drawParticleSphere_randomPart[i] = int(ofRandom(100, 500));
-        drawParticleSphere_partSize[i] = int(ofRandom(2, 11));
-    }
-}
-
-//--------------------------------------------------------------
-void ofApp::drawParticleSphere(){
-    //    background(0);
-    //    //fill(0,20);
-    //    //rect(0,0,width,height);
-    //
-    //    drawParticleSphere_x += 0.01;
-//    
-//    for (int yRand = 0; yRand < 100; yRand++) {
-//        
-//        drawParticleSphere_particleY = drawParticleSphere_randomPart[yRand];
-//        
-//        float sine = sin((2*PI*drawParticleSphere_x)/drawParticleSphere_period + drawParticleSphere_randomPart[yRand]);
-//        drawParticleSphere_amplitude = sqrt(sq(drawParticleSphere_radius) - sq(windowHeight/2 - drawParticleSphere_particleY));
-//        drawParticleSphere_sineEl = windowWidth/2 + sine * drawParticleSphere_amplitude;
-//        
-//        float particleSize = drawParticleSphere_partSize[yRand];
-//        
-//        //rotation
-//        ofPushMatrix();
-//        translate(windowWidth/2, windowHeight/2);
-//        drawParticleSphere_r += 0.005;
-//        rotate(radians(drawParticleSphere_r));
-//        translate(-windowWidth/2, -windowHeight/2);
-//        
-////        stroke(255);
-//        //line(width/2, 0, width/2, height); //uncomment to see the axis
-////        noStroke();
-//        fill(255);
-//        ellipse(drawParticleSphere_sineEl, drawParticleSphere_particleY, particleSize, particleSize);
-//        ofPopMatrix();
-//    }
-//    
-////    noFill();
-////    stroke(255);
-//    //ellipse(width/2, height/2, circleSize, circleSize);
 }
 
 //--------------------------------------------------------------
@@ -569,42 +456,6 @@ int ofApp::getSameStepNum(int value){
         return checkNum;
     }
     return -1;
-}
-
-//--------------------------------------------------------------
-void ofApp::addBox2dCircles(int step, int stepValue){
-    box2dCirclesColor.push_back(getWoodenBallColor(stepValue));
-    
-    float r = ofRandom(knobs[5] * 10, knobs[5] * 10 + 10);
-    if (getOscillator() == 0 || getOscillator() == 1 || getOscillator() == 2) {
-        box2dCircles.push_back(ofPtr<ofxBox2dCircle>(new ofxBox2dCircle));
-        box2dCircles.back().get()->setPhysics(3.0, 0.53, 0.1);
-        box2dCircles.back().get()->setup(box2d.getWorld(), ofRandom(step * 100, step * 100 + 20), 10, r);
-    } else if (getOscillator() == 3 || getOscillator() == 4) {
-        box2dRects.push_back(ofPtr<ofxBox2dRect>(new ofxBox2dRect));
-        box2dRects.back().get()->setPhysics(3.0, 0.53, 0.1);
-        box2dRects.back().get()->setup(box2d.getWorld(), ofRandom(step * 100, step * 100 + 20), 10, r, r);
-    } else if (getOscillator() == 5 || getOscillator() == 6) {
-        box2dRects.push_back(ofPtr<ofxBox2dRect>(new ofxBox2dRect));
-        box2dRects.back().get()->setPhysics(3.0, 0.53, 0.1);
-        box2dRects.back().get()->setup(box2d.getWorld(), ofRandom(step * 100, step * 100 + 20), 10, r, r * 2);
-    } else if (getOscillator() == 7 || getOscillator() == 8) {
-        box2dRects.push_back(ofPtr<ofxBox2dRect>(new ofxBox2dRect));
-        box2dRects.back().get()->setPhysics(3.0, 0.53, 0.1);
-        box2dRects.back().get()->setup(box2d.getWorld(), ofRandom(step * 100, step * 100 + 20), 10, r, r * 3);
-    }
-}
-
-//--------------------------------------------------------------
-void ofApp::drawBox2dCircles(){
-    for(int i = 0; i < box2dCircles.size(); i++) {
-        fill(box2dCirclesColor[i]);
-        box2dCircles[i].get()->draw();
-    }
-    for(int i = 0; i < box2dRects.size(); i++) {
-        fill(box2dCirclesColor[i]);
-        box2dRects[i].get()->draw();
-    }
 }
 
 //--------------------------------------------------------------
